@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <title>Business Travel News (BTN) NYC Conference Hotels</title>
-<meta name="description" content="13 candidate NYC hotels for the BTN conference at the Javits Center, ranked by distance, nightly rate, and vibe — with walk, taxi and subway times.">
+<meta name="description" content="19 candidate NYC hotels for the BTN conference at the Javits Center, ranked by distance, nightly rate, and vibe — with walk, taxi and subway times.">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -128,6 +128,12 @@ h1{font-size:1.25rem;line-height:1.5rem;margin:0;letter-spacing:-.025em;font-wei
   background:hsl(var(--surface-feature-accent)/.14);
   color:hsl(var(--surface-feature-accent));
 }
+/* provisional = dashed everywhere, so an estimate never reads as a quote */
+.badge--prov{
+  background:none;
+  color:hsl(var(--content-secondary));
+  border:1px dashed hsl(var(--border-medium));
+}
 @media (prefers-color-scheme:dark){.badge--roof{color:hsl(var(--accent-pink-300))}}
 
 .legend{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap;
@@ -135,6 +141,7 @@ h1{font-size:1.25rem;line-height:1.5rem;margin:0;letter-spacing:-.025em;font-wei
 .legend span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .sw{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
 .sw--javits{width:12px;height:12px;border-radius:3px;background:hsl(var(--javits))}
+.sw--prov{background:none;border:1.5px dashed hsl(var(--marker-idle))}
 
 /* ---------- changelog ---------- */
 .changelog{
@@ -272,6 +279,8 @@ li:hover .dot,li.on .dot{background:hsl(var(--marker-active))}
 
 .rt{text-align:right;white-space:nowrap;display:flex;flex-direction:column;gap:2px;align-items:flex-end}
 .tot{font-family:var(--font-inter);font-weight:600;font-size:.9375rem;font-variant-numeric:tabular-nums}
+.tot.prov,.ngt.prov{color:hsl(var(--content-secondary))}
+.tot.prov{border-bottom:1px dashed hsl(var(--border-medium));padding-bottom:1px}
 .ngt{font-family:var(--font-inter);font-size:.6875rem;color:hsl(var(--content-tertiary));font-variant-numeric:tabular-nums}
 .mi{font-family:var(--font-inter);font-size:.6875rem;color:hsl(var(--content-tertiary));font-variant-numeric:tabular-nums}
 .warn{font-family:var(--font-inter);font-size:.6875rem;color:hsl(var(--content-warning));font-weight:600}
@@ -321,12 +330,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub">Javits Center · 4 nights · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v2.5</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v3.0</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v3.0</dt>
+      <dd>Six hotels added — <b>Arlo Midtown, Ink48, The High Line Hotel, CIVILIAN, EVEN Times Square South</b> and <b>citizenM Times Square</b> — bringing the set to 19. Their rates are <b>provisional estimates that have not been pulled</b>, and are marked as such throughout: a dashed <i>Est. rate</i> chip, a ~ prefix, dashed underlines on the figures, and a dashed ring on the map marker.</dd>
       <dt>v2.5</dt>
       <dd>Title picked up <b>NYC</b> — the conference series runs in several cities, so the city belongs in the name.</dd>
       <dt>v2.4</dt>
@@ -448,7 +459,44 @@ const HOTELS = [
  low:473.85, total:1895.40, hiTotal:2075.40, rooms:"10+", type:"Standard",
  note:"Stay 3 and Save non-member; accessible available", mi:3.30, walk:82, taxi:25,
  train:{min:30, lines:["A","C"], via:"Fulton St → 34 St–Penn · 5 stops"},
- roof:"Moxy rooftop bar", vibe:{cool:3, arch:2, scene:3}}
+ roof:"Moxy rooftop bar", vibe:{cool:3, arch:2, scene:3}},
+
+/* --- Provisional block. Rates below are ESTIMATES, not pulled from the feed. --- */
+{name:"Arlo Midtown", addr:"351 W 39th St", lat:40.7560115, lon:-73.9925721,
+ prov:true, low:429, total:1716, hiTotal:1972, rooms:"—", type:"Est. standard",
+ note:"Provisional rate — not yet pulled", mi:0.53, walk:13, taxi:7,
+ train:{min:14, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
+ roof:"Rooftop bar", vibe:{cool:4, arch:3, scene:3}},
+
+{name:"Ink48 (Kimpton)", addr:"653 Eleventh Ave", lat:40.7645094, lon:-73.9958554,
+ prov:true, low:519, total:2076, hiTotal:2396, rooms:"—", type:"Est. standard",
+ note:"Provisional rate — not yet pulled", mi:0.54, walk:13, taxi:7,
+ train:{min:22, lines:["A","C","E"], via:"50 St → 34 St–Penn · 2 stops"},
+ roof:"The Press Lounge", vibe:{cool:4, arch:3, scene:4}},
+
+{name:"The High Line Hotel", addr:"180 Tenth Ave", lat:40.7459314, lon:-74.0050167,
+ prov:true, low:625, total:2500, hiTotal:2900, rooms:"—", type:"Est. standard",
+ note:"Provisional rate — not yet pulled", mi:0.87, walk:22, taxi:9,
+ train:{min:18, lines:["A","C","E"], via:"23 St → 34 St–Penn · 1 stop"},
+ roof:null, vibe:{cool:4, arch:5, scene:3}},
+
+{name:"CIVILIAN Hotel", addr:"305 W 48th St", lat:40.7612015, lon:-73.9871805,
+ prov:true, low:479, total:1916, hiTotal:2220, rooms:"—", type:"Est. standard",
+ note:"Provisional rate — not yet pulled", mi:0.81, walk:20, taxi:9,
+ train:{min:15, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
+ roof:"Rooftop bar + terrace", vibe:{cool:4, arch:4, scene:3}},
+
+{name:"EVEN Hotel Times Square South", addr:"321 W 35th St", lat:40.7534756, lon:-73.9938758,
+ prov:true, low:389, total:1556, hiTotal:1796, rooms:"—", type:"Est. standard",
+ note:"Provisional rate — not yet pulled", mi:0.55, walk:14, taxi:7,
+ train:{min:15, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
+ roof:null, vibe:{cool:2, arch:2, scene:1}},
+
+{name:"citizenM Times Square", addr:"218 W 50th St", lat:40.7615659, lon:-73.9849656,
+ prov:true, low:465, total:1860, hiTotal:2140, rooms:"—", type:"Est. standard",
+ note:"Provisional rate — not yet pulled", mi:0.92, walk:23, taxi:10,
+ train:{min:15, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
+ roof:"cloudM rooftop bar", vibe:{cool:3, arch:3, scene:3}}
 ];
 
 /* composite vibe score, one decimal */
@@ -555,7 +603,13 @@ function paint(){
   const idle = tokenHsl('marker-idle'), active = tokenHsl('marker-active');
   HOTELS.forEach(h=>{
     const on = h.name === focused;
-    marks[h.name].setStyle({fillColor: on ? active : idle, radius: on ? 13 : 9, fillOpacity:1});
+    marks[h.name].setStyle({
+      fillColor: on ? active : idle,
+      radius: on ? 13 : 9,
+      fillOpacity: 1,
+      dashArray: h.prov ? '2 2' : null,   // dashed ring = rate not yet pulled
+      weight: h.prov ? 2.5 : 2
+    });
     if (on) marks[h.name].bringToFront();
   });
 }
@@ -586,11 +640,12 @@ HOTELS.forEach(h=>{
     (h.roof ? '<div class="via" style="margin-top:4px">'+h.roof+'</div>' : '')+
 
     '<hr class="pop-hr">'+
-    '<div class="pop-label">Price</div>'+
-    '<div class="pop-row"><span>4 nights</span><span>'+usd(h.total)+'</span></div>'+
-    '<div class="pop-row"><span>Per night</span><span>'+usd(h.low)+'</span></div>'+
-    '<div class="pop-row"><span>'+h.type+'</span><span>'+h.rooms+' rooms</span></div>'+
-    '<div class="via" style="margin-top:4px">'+h.note+'</div>');
+    '<div class="pop-label">Price'+(h.prov?' — provisional':'')+'</div>'+
+    '<div class="pop-row"><span>4 nights</span><span>'+(h.prov?'~':'')+usd(h.total)+'</span></div>'+
+    '<div class="pop-row"><span>Per night</span><span>'+(h.prov?'~':'')+usd(h.low)+'</span></div>'+
+    (h.prov ? '' : '<div class="pop-row"><span>'+h.type+'</span><span>'+h.rooms+' rooms</span></div>')+
+    '<div class="via" style="margin-top:4px">'+
+      (h.prov ? 'Estimate only — this rate has not been pulled yet.' : h.note)+'</div>');
   m.on('mouseover',()=>focus(h.name));
   m.on('mouseout',()=>focus(null));
   marks[h.name] = m;
@@ -616,6 +671,7 @@ function render(){
   legendEl.innerHTML =
     '<span><i class="sw sw--javits"></i>Javits Center</span>' +
     '<span><i class="sw" style="background:'+tokenHsl('marker-idle')+'"></i>Hotel</span>' +
+    '<span><i class="sw sw--prov"></i>Provisional rate</span>' +
     '<span><i class="sw" style="background:'+tokenHsl('marker-active')+'"></i>Hovered</span>';
 
   listEl.innerHTML = '';
@@ -636,14 +692,15 @@ function render(){
         '</span>'+
         '<span class="via">'+h.train.via+'</span>'+
         '<span class="meta">'+
-          '<span>'+h.type+' · '+h.rooms+' rooms</span>'+
+          (h.prov ? '<span class="badge badge--prov">Est. rate</span>'
+                  : '<span>'+h.type+' · '+h.rooms+' rooms</span>')+
           '<span class="vibe">'+pips(h.v)+'<span class="vnum">'+h.v.toFixed(1)+'</span></span>'+
           (h.rooms==='7' ? '<span class="warn">only 7 left</span>' : '')+
         '</span>'+
       '</span>'+
       '<span class="rt">'+
-        '<span class="tot">'+usd(h.total)+'</span>'+
-        '<span class="ngt">'+usd(h.low)+'/night</span>'+
+        '<span class="tot'+(h.prov?' prov':'')+'">'+(h.prov?'~':'')+usd(h.total)+'</span>'+
+        '<span class="ngt'+(h.prov?' prov':'')+'">'+(h.prov?'~':'')+usd(h.low)+'/night</span>'+
         '<span class="mi">'+h.mi.toFixed(2)+' mi</span>'+
       '</span>';
 
@@ -656,9 +713,11 @@ function render(){
   paint();
 
   const roofs = HOTELS.filter(h=>h.roof).length;
+  const prov  = HOTELS.filter(h=>h.prov).length;
   footEl.textContent =
     HOTELS.length+' hotels · '+roofs+' with a rooftop bar or lounge · sorted by '+M.label.toLowerCase()+
-    ' — distances are straight-line; taxi, subway and vibe scores are estimates, not booked data.';
+    ' — distances are straight-line; taxi, subway and vibe scores are estimates, not booked data. '+
+    prov+' rates are provisional (shown dashed, with ~) and have not been pulled yet.';
 }
 
 /* ---------- segmented control ---------- */
