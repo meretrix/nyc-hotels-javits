@@ -5,155 +5,611 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <title>NYC hotels — distance from the Javits Center</title>
+<meta name="description" content="13 candidate NYC hotels ranked by distance from the Javits Center, nightly rate, and vibe — with walk, taxi and subway times.">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ============================================================
+   Tokens ported from Andavo NOMAD
+   libs/client/shared/shared/util/styles/src/lib/styles.css
+   HSL triplets kept in NOMAD's own format so they stay diffable.
+   ============================================================ */
+:root{
+  --font-jakarta:'Plus Jakarta Sans','Helvetica','Arial',sans-serif;
+  --font-inter:'Inter','Plus Jakarta Sans','Helvetica','Arial',sans-serif;
+
+  /* primitives — neutral (blue-biased, per NOMAD) */
+  --neutral-0:0 0% 100%;    --neutral-25:0 0% 98%;    --neutral-50:0 0% 97%;
+  --neutral-100:216 5% 96%; --neutral-200:223 2% 92%; --neutral-300:240 1% 86%;
+  --neutral-400:222 4% 73%; --neutral-500:223 6% 51%; --neutral-600:223 19% 37%;
+  --neutral-700:222 23% 24%;--neutral-800:221 23% 16%;--neutral-900:221 23% 11%;
+  --neutral-1000:223 17% 8%;
+  /* primitives — brand / status / accent */
+  --brand-50:192 100% 97%;  --brand-500:192 100% 40%; --brand-600:196 100% 34%;
+  --brand-700:196 100% 32%; --brand-900:196 100% 16%;
+  --success-50:102 76% 97%; --success-500:100 64% 44%;--success-600:100 76% 36%;
+  --success-700:100 72% 29%;
+  --caution-300:44 100% 65%;--caution-600:45 100% 47%;--caution-800:44 100% 33%;
+  --warning-50:28 100% 97%; --warning-400:27 100% 66%;--warning-500:27 99% 60%;
+  --warning-800:27 71% 44%;
+  --danger-50:350 86% 97%;  --danger-400:352 100% 66%;--danger-600:352 72% 51%;
+  --danger-700:352 74% 42%;
+  --accent-pink-300:334 100% 71%; --accent-pink-600:334 55% 52%;
+  --accent-indigo-600:243 75% 59%;
+
+  /* semantic — light */
+  --content-primary:var(--neutral-800);
+  --content-secondary:var(--neutral-500);
+  --content-tertiary:var(--neutral-400);
+  --content-inverted:var(--neutral-50);
+  --content-action:var(--brand-700);
+  --surface-background:var(--neutral-25);
+  --surface-midground:var(--neutral-0);
+  --surface-foreground:var(--neutral-100);
+  --surface-action-subtle:var(--brand-50);
+  --surface-action-strong:var(--brand-500);
+  --surface-feature-accent:var(--accent-pink-600);
+  --border-subtle:var(--neutral-200);
+  --border-medium:var(--neutral-300);
+  --border-card:var(--neutral-100);
+  --shadow-raise:0 1px 2px hsl(var(--neutral-800)/.10),0 1px 1px hsl(var(--neutral-800)/.06);
+
+  /* Four-step goodness ramp, step 1 always "best".
+     These are FILL strengths (map dots, swatches, pips) — deliberately the
+     mid/strong end of each NOMAD scale, not the -700/-800 content values,
+     which are tuned for text on a light ground and go muddy as fills. */
+  --t1:var(--success-600); --t2:var(--caution-600);
+  --t3:var(--warning-500); --t4:var(--danger-600);
+  --content-warning:var(--warning-800);
+  --javits:var(--accent-indigo-600);
+
+  --radius:0.5rem;
+}
+@media (prefers-color-scheme:dark){
   :root{
-    --bg:#eceff3; --panel:#ffffff; --sunk:#e3e8ee; --ink:#151a21; --mid:#4b5665; --soft:#6f7b8a;
-    --rule:#d3dae2; --accent:#2f4d8c; --javits:#5b3fa8;
-    --t1:#127a5f; --t2:#9a7409; --t3:#c05a12; --t4:#b32d24;
-    --mono:ui-monospace,"SF Mono",SFMono-Regular,"Cascadia Mono",Menlo,Consolas,monospace;
-    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --content-primary:var(--neutral-100);
+    --content-secondary:var(--neutral-400);
+    --content-tertiary:var(--neutral-500);
+    --content-inverted:var(--neutral-900);
+    --content-action:var(--brand-400,192 93% 60%);
+    --surface-background:var(--neutral-1000);
+    --surface-midground:var(--neutral-900);
+    --surface-foreground:var(--neutral-800);
+    --surface-action-subtle:var(--brand-600);
+    --border-subtle:var(--neutral-800);
+    --border-medium:var(--neutral-700);
+    --border-card:var(--neutral-800);
+    --shadow-raise:0 1px 2px hsl(0 0% 0%/.5),0 1px 1px hsl(0 0% 0%/.35);
+    --t1:var(--success-500); --t2:var(--caution-300);
+    --t3:var(--warning-400); --t4:var(--danger-400);
+    --content-warning:var(--warning-400);
+    --javits:var(--accent-pink-300);
   }
-  @media (prefers-color-scheme:dark){:root{
-    --bg:#0e1216; --panel:#161b22; --sunk:#1c222b; --ink:#e5eaf1; --mid:#a5b0bd; --soft:#8a95a3;
-    --rule:#262d38; --accent:#7d9ce0; --javits:#a892ec;
-    --t1:#3fb894; --t2:#d9b23a; --t3:#e8873c; --t4:#e0655a;
-  }}
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+}
 
-  .wrap{display:grid;grid-template-columns:minmax(0,1fr) 460px;grid-template-rows:auto minmax(0,1fr);height:100vh}
-  header{grid-column:1/-1;background:var(--panel);border-bottom:1px solid var(--rule);padding:16px 22px;display:flex;align-items:baseline;gap:20px;flex-wrap:wrap}
-  h1{font-size:19px;margin:0;letter-spacing:-.01em}
-  .sub{color:var(--mid);font-size:13.5px}
-  .legend{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--mid)}
-  .legend span{display:inline-flex;align-items:center;gap:6px}
-  .sw{width:11px;height:11px;border-radius:50%;display:inline-block}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:hsl(var(--surface-background));
+  color:hsl(var(--content-primary));
+  font-family:var(--font-jakarta);
+  font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
 
-  #map{width:100%;height:100%;background:var(--sunk)}
+/* ---------- shell ---------- */
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 480px;grid-template-rows:auto minmax(0,1fr);height:100vh}
+header{
+  grid-column:1/-1;
+  background:hsl(var(--surface-midground));
+  border-bottom:1px solid hsl(var(--border-subtle));
+  padding:14px 22px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+h1{font-size:1.25rem;line-height:1.5rem;margin:0;letter-spacing:-.025em;font-weight:700}
+.sub{color:hsl(var(--content-secondary));font-size:.8125rem;line-height:1.125rem}
 
-  aside{background:var(--panel);border-left:1px solid var(--rule);overflow-y:auto}
-  .ctl{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--rule);padding:12px 18px;display:flex;gap:8px;align-items:center;z-index:5}
-  .ctl b{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);font-weight:500;margin-right:auto}
-  button{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;padding:6px 11px;border-radius:4px;border:1px solid var(--rule);background:var(--sunk);color:var(--mid);cursor:pointer}
-  button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
-  button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* NOMAD badge idiom: Inter, semibold, uppercase, tracking-wider */
+.badge{
+  font-family:var(--font-inter);font-weight:600;font-size:.625rem;
+  letter-spacing:.06em;text-transform:uppercase;
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 8px;border-radius:999px;white-space:nowrap;
+}
+.badge--version{
+  background:hsl(var(--surface-action-subtle));
+  color:hsl(var(--content-action));
+  border:1px solid hsl(var(--border-subtle));
+  cursor:pointer;font-variant-numeric:tabular-nums;
+}
+.badge--version:hover{border-color:hsl(var(--surface-action-strong))}
+.badge--roof{
+  background:hsl(var(--surface-feature-accent)/.14);
+  color:hsl(var(--surface-feature-accent));
+}
+@media (prefers-color-scheme:dark){.badge--roof{color:hsl(var(--accent-pink-300))}}
 
-  ol{list-style:none;margin:0;padding:0}
-  li{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;padding:13px 18px;border-bottom:1px solid var(--rule);cursor:pointer;align-items:start}
-  li:hover,li.on{background:var(--sunk)}
-  .rank{font-family:var(--mono);font-size:12px;color:var(--soft);padding-top:3px;font-variant-numeric:tabular-nums}
-  .nm{font-weight:600;font-size:14.5px;line-height:1.3}
-  .meta{color:var(--mid);font-size:12.5px;margin-top:3px}
-  .meta em{font-style:normal;color:var(--soft)}
-  .rt{text-align:right;white-space:nowrap}
-  .tot{font-family:var(--mono);font-weight:600;font-size:14px;font-variant-numeric:tabular-nums}
-  .ngt{font-family:var(--mono);font-size:11.5px;color:var(--soft);font-variant-numeric:tabular-nums}
-  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:1px}
-  .warn{font-family:var(--mono);font-size:11px;color:var(--t3);margin-top:3px}
+.legend{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap;
+  font-family:var(--font-inter);font-size:.6875rem;color:hsl(var(--content-secondary));align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.sw{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
 
-  .leaflet-popup-content{font-family:var(--sans);font-size:13px;margin:12px 14px}
-  .leaflet-popup-content b{font-size:14px}
-  .pp{font-family:var(--mono);font-variant-numeric:tabular-nums}
+/* ---------- changelog ---------- */
+.changelog{
+  grid-column:1/-1;display:none;
+  background:hsl(var(--surface-foreground));
+  border-bottom:1px solid hsl(var(--border-subtle));
+  padding:16px 22px;
+}
+.changelog[data-open="true"]{display:block}
+.changelog dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 16px;max-width:900px}
+.changelog dt{
+  font-family:var(--font-inter);font-weight:600;font-size:.6875rem;letter-spacing:.06em;
+  text-transform:uppercase;color:hsl(var(--content-action));padding-top:3px;font-variant-numeric:tabular-nums;
+}
+.changelog dd{margin:0;font-size:.8125rem;line-height:1.35rem;color:hsl(var(--content-secondary))}
+.changelog dd b{color:hsl(var(--content-primary));font-weight:600}
 
-  @media (max-width:1000px){
-    .wrap{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 52vh minmax(0,1fr)}
-    aside{border-left:0;border-top:1px solid var(--rule)}
-  }
+#map{width:100%;height:100%;background:hsl(var(--surface-foreground))}
+
+/* ---------- list pane ---------- */
+aside{background:hsl(var(--surface-background));border-left:1px solid hsl(var(--border-subtle));overflow-y:auto}
+.ctl{
+  position:sticky;top:0;z-index:5;
+  background:hsl(var(--surface-background));
+  border-bottom:1px solid hsl(var(--border-subtle));
+  padding:14px 18px;display:flex;gap:12px;align-items:center;
+}
+.ctl-label{
+  font-family:var(--font-inter);font-size:.625rem;letter-spacing:.1em;text-transform:uppercase;
+  color:hsl(var(--content-tertiary));font-weight:600;flex:none;
+}
+
+/* segmented control */
+.seg{
+  position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;
+  flex:1;padding:3px;border-radius:var(--radius);
+  background:hsl(var(--surface-foreground));
+  border:1px solid hsl(var(--border-subtle));
+}
+.seg-ind{
+  position:absolute;top:3px;bottom:3px;left:3px;
+  width:calc((100% - 6px)/3);
+  background:hsl(var(--surface-midground));
+  border-radius:calc(var(--radius) - 2px);
+  box-shadow:var(--shadow-raise);
+  transition:transform .22s cubic-bezier(.32,.72,0,1);
+  pointer-events:none;
+}
+.seg button{
+  position:relative;z-index:1;appearance:none;background:none;border:0;cursor:pointer;
+  font-family:var(--font-inter);font-weight:600;font-size:.75rem;letter-spacing:.02em;
+  padding:6px 4px;border-radius:calc(var(--radius) - 2px);
+  color:hsl(var(--content-secondary));transition:color .18s ease;
+}
+.seg button[aria-selected="true"]{color:hsl(var(--content-primary))}
+.seg button:focus-visible{outline:2px solid hsl(var(--surface-action-strong));outline-offset:1px}
+@media (prefers-reduced-motion:reduce){.seg-ind{transition:none}}
+
+/* card-based sectioning, after the andavo.com marketing language */
+ol{list-style:none;margin:0;padding:14px;display:flex;flex-direction:column;gap:10px}
+li{
+  position:relative;
+  display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:6px 12px;
+  padding:15px 17px;
+  background:hsl(var(--surface-midground));
+  border:1px solid hsl(var(--border-subtle));
+  border-radius:calc(var(--radius) * 1.5);
+  cursor:pointer;align-items:start;
+  transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+li:hover,li.on{
+  border-color:hsl(var(--border-medium));
+  box-shadow:var(--shadow-raise);
+  transform:translateY(-1px);
+}
+li::after{  /* arrow affordance — the marketing site's card cue */
+  content:'';position:absolute;right:14px;bottom:14px;
+  width:7px;height:7px;border-right:1.6px solid hsl(var(--content-tertiary));
+  border-top:1.6px solid hsl(var(--content-tertiary));
+  transform:rotate(45deg);opacity:0;transition:opacity .18s ease,right .18s ease;
+}
+li:hover::after,li.on::after{opacity:1;right:11px}
+@media (prefers-reduced-motion:reduce){li,li::after{transition:none}li:hover,li.on{transform:none}}
+.rank{
+  font-family:var(--font-inter);font-size:.75rem;font-weight:600;
+  color:hsl(var(--content-tertiary));padding-top:2px;font-variant-numeric:tabular-nums;
+}
+.body{min-width:0;display:flex;flex-direction:column;gap:6px}
+.nm{font-weight:600;font-size:.9375rem;line-height:1.25rem;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+
+/* transit strip — the new line beneath the hotel label */
+.transit{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  font-family:var(--font-inter);font-size:.75rem;line-height:1.125rem;
+  color:hsl(var(--content-secondary));font-variant-numeric:tabular-nums;
+}
+.leg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.leg svg{width:15px;height:15px;flex:none;stroke:currentColor;fill:none;
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+.leg.best{color:hsl(var(--content-primary));font-weight:600}
+.leg.best svg{opacity:1;stroke:hsl(var(--t1))}
+.lines{display:inline-flex;gap:3px;margin-left:1px}
+.bullet{
+  width:15px;height:15px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--font-inter);font-size:.5625rem;font-weight:700;color:#fff;flex:none;line-height:1;
+}
+.via{color:hsl(var(--content-tertiary));font-size:.6875rem}
+
+.meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  color:hsl(var(--content-tertiary));font-size:.75rem;font-family:var(--font-inter)}
+
+/* vibe meter */
+.vibe{display:inline-flex;align-items:center;gap:6px}
+.pips{display:inline-flex;gap:2px}
+.pip{width:12px;height:4px;border-radius:2px;background:hsl(var(--border-medium))}
+.pip.f{background:hsl(var(--surface-feature-accent))}
+@media (prefers-color-scheme:dark){.pip.f{background:hsl(var(--accent-pink-300))}}
+.vnum{font-variant-numeric:tabular-nums;font-weight:600;color:hsl(var(--content-secondary))}
+
+.rt{text-align:right;white-space:nowrap;display:flex;flex-direction:column;gap:2px;align-items:flex-end}
+.tot{font-family:var(--font-inter);font-weight:600;font-size:.9375rem;font-variant-numeric:tabular-nums}
+.ngt{font-family:var(--font-inter);font-size:.6875rem;color:hsl(var(--content-tertiary));font-variant-numeric:tabular-nums}
+.mi{font-family:var(--font-inter);font-size:.6875rem;color:hsl(var(--content-tertiary));font-variant-numeric:tabular-nums}
+.warn{font-family:var(--font-inter);font-size:.6875rem;color:hsl(var(--content-warning));font-weight:600}
+
+footer{
+  grid-column:1/-1;padding:10px 22px;border-top:1px solid hsl(var(--border-subtle));
+  background:hsl(var(--surface-midground));color:hsl(var(--content-tertiary));
+  font-family:var(--font-inter);font-size:.6875rem;
+}
+
+/* leaflet overrides */
+.leaflet-popup-content{font-family:var(--font-jakarta);font-size:.8125rem;margin:13px 15px;min-width:210px}
+.leaflet-popup-content b{font-size:.875rem}
+.leaflet-popup-content-wrapper{border-radius:var(--radius)}
+.pp{font-family:var(--font-inter);font-variant-numeric:tabular-nums}
+.pop-row{display:flex;justify-content:space-between;gap:14px;margin-top:3px;font-family:var(--font-inter);font-size:.75rem}
+.pop-row span:last-child{font-variant-numeric:tabular-nums;font-weight:600}
+.pop-hr{border:0;border-top:1px solid hsl(var(--border-subtle));margin:9px 0}
+
+@media (max-width:1060px){
+  .wrap{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto 46vh minmax(0,1fr) auto}
+  aside{border-left:0;border-top:1px solid hsl(var(--border-subtle))}
+  .legend{margin-left:0;width:100%}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <h1>NYC hotels — distance from the Javits Center</h1>
-    <span class="sub">4 nights · refundable, standard/deluxe · straight-line distance</span>
-    <div class="legend">
-      <span><i class="sw" style="background:var(--javits)"></i>Javits</span>
-      <span><i class="sw" style="background:var(--t1)"></i>under $2k</span>
-      <span><i class="sw" style="background:var(--t2)"></i>$2–3k</span>
-      <span><i class="sw" style="background:var(--t3)"></i>$3–4k</span>
-      <span><i class="sw" style="background:var(--t4)"></i>over $4k</span>
-    </div>
+    <span class="sub">4 nights · refundable · straight-line distance</span>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v2.0</button>
+    <div class="legend" id="legend"></div>
   </header>
+
+  <section class="changelog" id="changelog" data-open="false">
+    <dl>
+      <dt>v2.0</dt>
+      <dd>Sort became a <b>segmented control</b> and gained a third dimension, <b>Vibes</b> — a composite of coolness, architectural interest, and scene. Added a <b>rooftop</b> attribute, and a transit line under each hotel with <b>walk, taxi and subway</b> times plus the lines you'd ride. Map markers now recolor to whichever dimension you're sorting by. Restyled on Andavo NOMAD tokens.</dd>
+      <dt>v1.0</dt>
+      <dd>First pass — 13 hotels geocoded and plotted against the Javits Center with distance rings at 0.5/1/2/3 mi, 4-night rates, and a list sortable by distance or price.</dd>
+    </dl>
+  </section>
+
   <div id="map"></div>
+
   <aside>
     <div class="ctl">
-      <b>Sort</b>
-      <button id="bd" aria-pressed="true">Distance</button>
-      <button id="bp" aria-pressed="false">Price</button>
+      <span class="ctl-label">Sort</span>
+      <div class="seg" role="tablist" aria-label="Sort hotels by">
+        <div class="seg-ind" id="ind"></div>
+        <button role="tab" id="m-d" aria-selected="true">Distance</button>
+        <button role="tab" id="m-p" aria-selected="false">Price</button>
+        <button role="tab" id="m-v" aria-selected="false">Vibes</button>
+      </div>
     </div>
     <ol id="list"></ol>
   </aside>
+
+  <footer id="foot"></footer>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const D = {"javits": {"name": "Jacob K. Javits Convention Center", "lat": 40.7583595, "lon": -74.0021206}, "hotels": [{"name": "Courtyard Midtown West", "lat": 40.7546901, "lon": -73.9986506, "low": 873.67, "total": 3494.68, "hiNight": 942.27, "hiTotal": 3769.08, "rooms": "10+", "type": "Standard", "note": "Member Flexible Rate; accessible options", "mi": 0.31, "walk": 8}, {"name": "Pendry Manhattan West", "lat": 40.7531622, "lon": -73.9984906, "low": 1525.5, "total": 6102.0, "hiNight": 1868.0, "hiTotal": 7472.0, "rooms": "10+", "type": "Deluxe room", "note": "BCD Travel (WiFi incl.); deluxe + studio rooms", "mi": 0.41, "walk": 10}, {"name": "Courtyard Manhattan/Times Sq", "lat": 40.7536218, "lon": -73.9861665, "low": 395.0, "total": 1580.0, "hiNight": 464.0, "hiTotal": 1856.0, "rooms": "10+", "type": "Guest room", "note": "Long Term Stay/Rate, Member Retail; accessible + queen options", "mi": 0.9, "walk": 22}, {"name": "The Maritime Hotel", "lat": 40.7424358, "lon": -74.003867, "low": 532.31, "total": 2129.24, "hiNight": 626.25, "hiTotal": 2505.0, "rooms": "10+", "type": "Standard/Accessible", "note": "BCD Travel + SMERATE (some incl. breakfast/WiFi)", "mi": 1.1, "walk": 28}, {"name": "The Standard High Line", "lat": 40.7408533, "lon": -74.0080841, "low": 753.5, "total": 3014.0, "hiNight": 912.0, "hiTotal": 3648.0, "rooms": "10+", "type": "Standard guest room", "note": "Standard Rate; deluxe + premium rooms", "mi": 1.25, "walk": 31}, {"name": "Gansevoort Meatpacking", "lat": 40.7398769, "lon": -74.0057111, "low": 858.6, "total": 3434.4, "hiNight": 966.6, "hiTotal": 3866.4, "rooms": "10+", "type": "Superior room", "note": "BCD BCP; superior + deluxe rooms", "mi": 1.29, "walk": 32}, {"name": "The Manner (Hyatt)", "lat": 40.7270663, "lon": -74.0010162, "low": 858.25, "total": 3433.0, "hiNight": 1212.75, "hiTotal": 4851.0, "rooms": "10+", "type": "Standard", "note": "BCD Travel + Standard Rate; standard + deluxe", "mi": 2.16, "walk": 54}, {"name": "PUBLIC", "lat": 40.7230653, "lon": -73.9920127, "low": 526.5, "total": 2106.0, "hiNight": 672.75, "hiTotal": 2691.0, "rooms": "10+", "type": "Standard", "note": "BCD Travel Hotel Program + Mid Market; double room option", "mi": 2.5, "walk": 62}, {"name": "Sheraton Tribeca", "lat": 40.720878, "lon": -74.004122, "low": 479.0, "total": 1916.0, "hiNight": 559.0, "hiTotal": 2236.0, "rooms": "10+", "type": "Guest room", "note": "Member Retail; superior room option", "mi": 2.59, "walk": 65}, {"name": "Sixty LES", "lat": 40.7218303, "lon": -73.9892736, "low": 403.33, "total": 1613.32, "hiNight": 497.22, "hiTotal": 1988.88, "rooms": "10+", "type": "Studio room", "note": "BCD Travel + Plan Ahead; studio & junior suite", "mi": 2.61, "walk": 65}, {"name": "citizenM New York Bowery", "lat": 40.7205955, "lon": -73.9934478, "low": 450.25, "total": 1801.0, "hiNight": 490.5, "hiTotal": 1962.0, "rooms": "10+", "type": "Guest room", "note": "Stay and Save; accessible, high-floor, premium-view", "mi": 2.65, "walk": 66}, {"name": "Merchant LES Hotel", "lat": 40.7199657, "lon": -73.989397, "low": 594.0, "total": 2376.0, "hiNight": 794.0, "hiTotal": 3176.0, "rooms": "7", "type": "Standard", "note": "Best Available Rate", "mi": 2.74, "walk": 68}, {"name": "Moxy NYC Downtown", "lat": 40.7108496, "lon": -74.0080046, "low": 473.85, "total": 1895.4, "hiNight": 518.85, "hiTotal": 2075.4, "rooms": "10+", "type": "Standard", "note": "Stay 3 and Save non-member; accessible available", "mi": 3.3, "walk": 82}]};
-const J = D.javits, H = D.hotels;
+/* ============================================================
+   Data.
+   Measured:  lat/lon (Nominatim), mi (haversine), rates (your feed).
+   Authored:  vibe scores, rooftop, taxi and subway estimates.
+   ============================================================ */
+const JAVITS = {name:'Jacob K. Javits Convention Center', lat:40.7583595, lon:-74.0021206};
 
-const tier = t => t <= 2000 ? 1 : t <= 3000 ? 2 : t <= 4000 ? 3 : 4;
-const css  = n => getComputedStyle(document.documentElement).getPropertyValue('--t'+n).trim();
-const usd  = n => '$' + n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+const HOTELS = [
+{name:"Courtyard Midtown West", lat:40.7546901, lon:-73.9986506,
+ low:873.67, total:3494.68, hiTotal:3769.08, rooms:"10+", type:"Standard",
+ note:"Member Flexible Rate; accessible options", mi:0.31, walk:8, taxi:5,
+ train:{min:9, lines:["7"], via:"34 St–Hudson Yards · 1 stop"},
+ roof:null, vibe:{cool:1, arch:2, scene:1}},
 
-const map = L.map('map',{scrollWheelZoom:true}).setView([40.7385,-73.9985], 13);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
+{name:"Pendry Manhattan West", lat:40.7531622, lon:-73.9984906,
+ low:1525.50, total:6102.00, hiTotal:7472.00, rooms:"10+", type:"Deluxe room",
+ note:"BCD Travel (WiFi incl.); deluxe + studio rooms", mi:0.41, walk:10, taxi:6,
+ train:{min:11, lines:["7"], via:"34 St–Hudson Yards · 1 stop"},
+ roof:null, vibe:{cool:4, arch:4, scene:3}},
+
+{name:"Courtyard Manhattan/Times Sq", lat:40.7536218, lon:-73.9861665,
+ low:395.00, total:1580.00, hiTotal:1856.00, rooms:"10+", type:"Guest room",
+ note:"Long Term Stay/Rate, Member Retail", mi:0.90, walk:22, taxi:10,
+ train:{min:12, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
+ roof:null, vibe:{cool:1, arch:1, scene:2}},
+
+{name:"The Maritime Hotel", lat:40.7424358, lon:-74.0038670,
+ low:532.31, total:2129.24, hiTotal:2505.00, rooms:"10+", type:"Standard/Accessible",
+ note:"BCD Travel + SMERATE (some incl. breakfast/WiFi)", mi:1.10, walk:28, taxi:11,
+ train:{min:19, lines:["A","C","E"], via:"14 St → 34 St–Penn · 2 stops"},
+ roof:"Rooftop bar + garden terrace", vibe:{cool:4, arch:5, scene:4}},
+
+{name:"The Standard High Line", lat:40.7408533, lon:-74.0080841,
+ low:753.50, total:3014.00, hiTotal:3648.00, rooms:"10+", type:"Standard guest room",
+ note:"Standard Rate; deluxe + premium rooms", mi:1.25, walk:31, taxi:12,
+ train:{min:21, lines:["A","C","E"], via:"14 St → 34 St–Penn · 2 stops"},
+ roof:"Le Bain + Top of the Standard", vibe:{cool:5, arch:5, scene:5}},
+
+{name:"Gansevoort Meatpacking", lat:40.7398769, lon:-74.0057111,
+ low:858.60, total:3434.40, hiTotal:3866.40, rooms:"10+", type:"Superior room",
+ note:"BCD BCP; superior + deluxe rooms", mi:1.29, walk:32, taxi:12,
+ train:{min:21, lines:["A","C","E"], via:"14 St → 34 St–Penn · 2 stops"},
+ roof:"Rooftop pool + bar", vibe:{cool:3, arch:3, scene:4}},
+
+{name:"The Manner (Hyatt)", lat:40.7270663, lon:-74.0010162,
+ low:858.25, total:3433.00, hiTotal:4851.00, rooms:"10+", type:"Standard",
+ note:"BCD Travel + Standard Rate; standard + deluxe", mi:2.16, walk:54, taxi:18,
+ train:{min:24, lines:["C","E"], via:"Spring St → 34 St–Penn · 4 stops"},
+ roof:"Rooftop terrace bar", vibe:{cool:5, arch:4, scene:4}},
+
+{name:"PUBLIC", lat:40.7230653, lon:-73.9920127,
+ low:526.50, total:2106.00, hiTotal:2691.00, rooms:"10+", type:"Standard",
+ note:"BCD Travel Hotel Program + Mid Market", mi:2.50, walk:62, taxi:20,
+ train:{min:28, lines:["F"], via:"2 Av → 34 St–Herald Sq · 4 stops"},
+ roof:"PUBLIC rooftop bar", vibe:{cool:4, arch:4, scene:4}},
+
+{name:"Sheraton Tribeca", lat:40.7208780, lon:-74.0041220,
+ low:479.00, total:1916.00, hiTotal:2236.00, rooms:"10+", type:"Guest room",
+ note:"Member Retail; superior room option", mi:2.59, walk:65, taxi:20,
+ train:{min:24, lines:["A","C","E"], via:"Canal St → 34 St–Penn · 3 stops"},
+ roof:null, vibe:{cool:1, arch:1, scene:1}},
+
+{name:"Sixty LES", lat:40.7218303, lon:-73.9892736,
+ low:403.33, total:1613.32, hiTotal:1988.88, rooms:"10+", type:"Studio room",
+ note:"BCD Travel + Plan Ahead; studio & junior suite", mi:2.61, walk:65, taxi:20,
+ train:{min:28, lines:["F"], via:"2 Av → 34 St–Herald Sq · 4 stops"},
+ roof:"Rooftop pool + bar", vibe:{cool:4, arch:3, scene:4}},
+
+{name:"citizenM New York Bowery", lat:40.7205955, lon:-73.9934478,
+ low:450.25, total:1801.00, hiTotal:1962.00, rooms:"10+", type:"Guest room",
+ note:"Stay and Save; accessible, high-floor, premium-view", mi:2.65, walk:66, taxi:20,
+ train:{min:28, lines:["F"], via:"2 Av → 34 St–Herald Sq · 4 stops"},
+ roof:"cloudM rooftop bar", vibe:{cool:3, arch:3, scene:3}},
+
+{name:"Merchant LES Hotel", lat:40.7199657, lon:-73.9893970,
+ low:594.00, total:2376.00, hiTotal:3176.00, rooms:"7", type:"Standard",
+ note:"Best Available Rate", mi:2.74, walk:68, taxi:21,
+ train:{min:28, lines:["F"], via:"Delancey–Essex → 34 St–Herald Sq · 5 stops"},
+ roof:null, vibe:{cool:3, arch:3, scene:3}},
+
+{name:"Moxy NYC Downtown", lat:40.7108496, lon:-74.0080046,
+ low:473.85, total:1895.40, hiTotal:2075.40, rooms:"10+", type:"Standard",
+ note:"Stay 3 and Save non-member; accessible available", mi:3.30, walk:82, taxi:25,
+ train:{min:30, lines:["A","C"], via:"Fulton St → 34 St–Penn · 5 stops"},
+ roof:"Moxy rooftop bar", vibe:{cool:3, arch:2, scene:3}}
+];
+
+/* composite vibe score, one decimal */
+HOTELS.forEach(h => { h.v = (h.vibe.cool + h.vibe.arch + h.vibe.scene) / 3; });
+
+/* ---------- MTA line colours ---------- */
+const MTA = {
+  '1':'#EE352E','2':'#EE352E','3':'#EE352E',
+  '4':'#00933C','5':'#00933C','6':'#00933C',
+  '7':'#B933AD',
+  'A':'#0039A6','C':'#0039A6','E':'#0039A6',
+  'B':'#FF6319','D':'#FF6319','F':'#FF6319','M':'#FF6319',
+  'N':'#FCCC0A','Q':'#FCCC0A','R':'#FCCC0A','W':'#FCCC0A',
+  'J':'#996633','Z':'#996633','L':'#A7A9AC','G':'#6CBE45'
+};
+const YELLOW = new Set(['N','Q','R','W']);
+
+/* ---------- icons (Phosphor-flavoured, drawn inline — no CDN) ---------- */
+const ICON = {
+  walk:'<circle cx="12.6" cy="4.3" r="2"/><path d="M12.6 8.2 11 13.6"/>'+
+       '<path d="M11 13.6 8.4 21"/><path d="M11 13.6 14.6 16.6 15.6 21"/>'+
+       '<path d="M12.6 9.6 8.7 11.6"/><path d="M12.6 9.6 16.2 12.1"/>',
+  taxi:'<path d="M9.5 3.2h5v2.4h-5z"/>'+
+       '<path d="M4 16.6v-3.3l2.2-4.4a1.5 1.5 0 0 1 1.35-.85h8.9a1.5 1.5 0 0 1 1.35.85L20 13.3v3.3"/>'+
+       '<path d="M4 13.3h16"/><circle cx="7.6" cy="17.4" r="1.6"/><circle cx="16.4" cy="17.4" r="1.6"/>',
+  train:'<rect x="5" y="3" width="14" height="15" rx="3.5"/><path d="M5 10.5h14"/>'+
+        '<circle cx="9.6" cy="14" r="1"/><circle cx="14.4" cy="14" r="1"/>'+
+        '<path d="M8.6 18 6.6 21"/><path d="M15.4 18 17.4 21"/>',
+  roof:'<path d="M4 4h16l-8 8z"/><path d="M12 12v7"/><path d="M8.4 20h7.2"/>'
+};
+const svg = n => '<svg viewBox="0 0 24 24" aria-hidden="true">'+ICON[n]+'</svg>';
+
+/* ---------- sort modes ---------- */
+const MODES = {
+  d:{label:'Distance', sort:(a,b)=>a.mi-b.mi,
+     tier:h=> h.mi<0.5?1 : h.mi<1.5?2 : h.mi<2.75?3 : 4,
+     legend:['under ½ mi','½ – 1½ mi','1½ – 2¾ mi','over 2¾ mi']},
+  p:{label:'Price', sort:(a,b)=>a.total-b.total,
+     tier:h=> h.total<2000?1 : h.total<3000?2 : h.total<4000?3 : 4,
+     legend:['under $2k','$2 – 3k','$3 – 4k','over $4k']},
+  v:{label:'Vibes', sort:(a,b)=>b.v-a.v,
+     tier:h=> h.v>=4.5?1 : h.v>=3.5?2 : h.v>=2.5?3 : 4,
+     legend:['4.5 +','3.5 – 4.4','2.5 – 3.4','under 2.5']}
+};
+const ORDER = ['d','p','v'];
+/* the active sort lives in the hash, so a link can be shared already sorted */
+const fromHash = () => {
+  const k = location.hash.replace('#','');
+  return ORDER.includes(k) ? k : 'd';
+};
+let mode = fromHash();
+
+const tokenHsl = n => 'hsl(' + getComputedStyle(document.documentElement)
+  .getPropertyValue('--'+n).trim() + ')';
+const tierColor = n => tokenHsl('t'+n);
+const usd = n => '$' + Math.round(n).toLocaleString('en-US');
+
+/* ---------- map ---------- */
+const map = L.map('map',{scrollWheelZoom:true}).setView([40.7385,-73.9985],13);
+
+/* the basemap follows the viewer's theme — a light map under a dark UI reads broken */
+const TILES = {
+  light:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  dark :'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png'
+};
+const darkMq = window.matchMedia('(prefers-color-scheme: dark)');
+const tiles = L.tileLayer(TILES[darkMq.matches ? 'dark' : 'light'],{
   attribution:'&copy; OpenStreetMap &copy; CARTO', maxZoom:19
 }).addTo(map);
 
-// distance rings from Javits
 [0.5,1,2,3].forEach(mi=>{
-  L.circle([J.lat,J.lon],{radius:mi*1609.34,color:'#7c8798',weight:1,opacity:.5,
-    fill:false,dashArray:'4 6'}).addTo(map)
-   .bindTooltip(mi+' mi',{permanent:false,direction:'top'});
+  L.circle([JAVITS.lat,JAVITS.lon],{radius:mi*1609.34,color:'#7c8798',weight:1,
+    opacity:.5,fill:false,dashArray:'4 6'}).addTo(map)
+   .bindTooltip(mi+' mi',{direction:'top'});
 });
 
-L.circleMarker([J.lat,J.lon],{radius:13,color:'#fff',weight:3,
-  fillColor:getComputedStyle(document.documentElement).getPropertyValue('--javits').trim(),
-  fillOpacity:1}).addTo(map)
- .bindPopup('<b>'+J.name+'</b><br>429 11th Ave — the anchor point');
+const javitsMark = L.circleMarker([JAVITS.lat,JAVITS.lon],{radius:13,color:'#fff',weight:3,
+  fillColor:tokenHsl('javits'),fillOpacity:1}).addTo(map)
+ .bindPopup('<b>'+JAVITS.name+'</b><br><span class="pp">429 11th Ave — the anchor point</span>');
+
+darkMq.addEventListener('change', e => {
+  tiles.setUrl(TILES[e.matches ? 'dark' : 'light']);
+  javitsMark.setStyle({fillColor:tokenHsl('javits')});
+  render();   // re-reads every token colour for the legend and markers
+});
+
+const bullets = ls => '<span class="lines">' + ls.map(l =>
+  '<span class="bullet" style="background:'+(MTA[l]||'#666')+
+  (YELLOW.has(l)?';color:#000':'')+'">'+l+'</span>').join('') + '</span>';
 
 const marks = {};
-H.forEach((h,i)=>{
-  const m = L.circleMarker([h.lat,h.lon],{radius:9,color:'#fff',weight:2,
-    fillColor:css(tier(h.total)),fillOpacity:1}).addTo(map);
+HOTELS.forEach(h=>{
+  const m = L.circleMarker([h.lat,h.lon],{radius:9,color:'#fff',weight:2,fillOpacity:1}).addTo(map);
   m.bindPopup(
-    '<b>'+h.name+'</b><br>'+
-    '<span class="pp">'+h.mi.toFixed(2)+' mi · ~'+h.walk+' min walk</span><br><br>'+
-    '<span class="pp">'+usd(h.total)+'</span> for 4 nights &nbsp;<span style="color:#777">('+usd(h.low)+'/night)</span><br>'+
-    '<span style="color:#777">range '+usd(h.total)+' – '+usd(h.hiTotal)+'</span><br><br>'+
-    h.type+' · '+h.rooms+' rooms<br>'+
-    '<span style="color:#777">'+h.note+'</span>');
-  marks[h.name]=m;
+    '<b>'+h.name+'</b>'+
+    (h.roof ? ' <span class="badge badge--roof">Rooftop</span>' : '') +
+    '<div class="pop-row"><span>Walk</span><span>'+h.walk+' min</span></div>'+
+    '<div class="pop-row"><span>Taxi</span><span>'+h.taxi+' min</span></div>'+
+    '<div class="pop-row"><span>Subway '+bullets(h.train.lines)+'</span><span>'+h.train.min+' min</span></div>'+
+    '<div class="via" style="margin-top:2px">'+h.train.via+'</div>'+
+    '<hr class="pop-hr">'+
+    '<div class="pop-row"><span>4 nights</span><span>'+usd(h.total)+'</span></div>'+
+    '<div class="pop-row"><span>Per night</span><span>'+usd(h.low)+'</span></div>'+
+    '<div class="pop-row"><span>Distance</span><span>'+h.mi.toFixed(2)+' mi</span></div>'+
+    '<hr class="pop-hr">'+
+    '<div class="pop-row"><span>Cool</span><span>'+h.vibe.cool+'/5</span></div>'+
+    '<div class="pop-row"><span>Architecture</span><span>'+h.vibe.arch+'/5</span></div>'+
+    '<div class="pop-row"><span>Scene</span><span>'+h.vibe.scene+'/5</span></div>'+
+    (h.roof ? '<div class="via" style="margin-top:6px">'+h.roof+'</div>' : '')+
+    '<div class="via" style="margin-top:6px">'+h.note+'</div>');
+  marks[h.name] = m;
 });
 
-const list = document.getElementById('list');
-function render(rows){
-  list.innerHTML='';
+/* ---------- render ---------- */
+const listEl   = document.getElementById('list');
+const legendEl = document.getElementById('legend');
+const indEl    = document.getElementById('ind');
+const footEl   = document.getElementById('foot');
+
+function pips(v){
+  const n = Math.round(v);
+  let s = '<span class="pips">';
+  for (let i=1;i<=5;i++) s += '<span class="pip'+(i<=n?' f':'')+'"></span>';
+  return s + '</span>';
+}
+
+function render(){
+  const M = MODES[mode];
+  const rows = [...HOTELS].sort(M.sort);
+
+  legendEl.innerHTML =
+    '<span><i class="sw" style="background:'+tokenHsl('javits')+'"></i>Javits</span>' +
+    M.legend.map((t,i)=>'<span><i class="sw" style="background:'+tierColor(i+1)+'"></i>'+t+'</span>').join('');
+
+  listEl.innerHTML = '';
   rows.forEach((h,i)=>{
-    const li=document.createElement('li');
+    const c = tierColor(M.tier(h));
+    // the train only earns emphasis when it actually beats walking
+    const trainWins = h.train.min < h.walk;
+    const li = document.createElement('li');
     li.innerHTML =
       '<span class="rank">'+(i+1)+'</span>'+
-      '<span><span class="nm"><i class="dot" style="background:'+css(tier(h.total))+'"></i>'+h.name+'</span>'+
-      '<span class="meta">'+h.mi.toFixed(2)+' mi · ~'+h.walk+' min walk<br><em>'+h.type+' · '+h.rooms+' rooms</em></span>'+
-      (h.rooms==='7'?'<span class="warn">only 7 rooms left</span>':'')+'</span>'+
-      '<span class="rt"><span class="tot">'+usd(h.total)+'</span><br><span class="ngt">'+usd(h.low)+'/night</span></span>';
-    li.onmouseenter=()=>{li.classList.add('on');marks[h.name].setStyle({radius:13})};
-    li.onmouseleave=()=>{li.classList.remove('on');marks[h.name].setStyle({radius:9})};
-    li.onclick=()=>{map.setView([h.lat,h.lon],15);marks[h.name].openPopup()};
-    list.appendChild(li);
-  });
-}
-const bd=document.getElementById('bd'), bp=document.getElementById('bp');
-function sort(by){
-  bd.setAttribute('aria-pressed', by==='d');
-  bp.setAttribute('aria-pressed', by==='p');
-  render([...H].sort((a,b)=> by==='d' ? a.mi-b.mi : a.total-b.total));
-}
-bd.onclick=()=>sort('d'); bp.onclick=()=>sort('p');
-sort('d');
+      '<span class="body">'+
+        '<span class="nm"><i class="dot" style="background:'+c+'"></i>'+h.name+
+          (h.roof ? '<span class="badge badge--roof">'+svg('roof')+'Rooftop</span>' : '')+
+        '</span>'+
+        '<span class="transit">'+
+          '<span class="leg'+(trainWins?'':' best')+'">'+svg('walk')+h.walk+' min</span>'+
+          '<span class="leg">'+svg('taxi')+h.taxi+' min</span>'+
+          '<span class="leg'+(trainWins?' best':'')+'">'+svg('train')+h.train.min+' min'+bullets(h.train.lines)+'</span>'+
+        '</span>'+
+        '<span class="via">'+h.train.via+'</span>'+
+        '<span class="meta">'+
+          '<span>'+h.type+' · '+h.rooms+' rooms</span>'+
+          '<span class="vibe">'+pips(h.v)+'<span class="vnum">'+h.v.toFixed(1)+'</span></span>'+
+          (h.rooms==='7' ? '<span class="warn">only 7 left</span>' : '')+
+        '</span>'+
+      '</span>'+
+      '<span class="rt">'+
+        '<span class="tot">'+usd(h.total)+'</span>'+
+        '<span class="ngt">'+usd(h.low)+'/night</span>'+
+        '<span class="mi">'+h.mi.toFixed(2)+' mi</span>'+
+      '</span>';
 
-map.fitBounds(L.latLngBounds([[J.lat,J.lon],...H.map(h=>[h.lat,h.lon])]).pad(0.12));
+    li.onmouseenter = ()=>{ li.classList.add('on'); marks[h.name].setStyle({radius:13}); };
+    li.onmouseleave = ()=>{ li.classList.remove('on'); marks[h.name].setStyle({radius:9}); };
+    li.onclick      = ()=>{ map.setView([h.lat,h.lon],15); marks[h.name].openPopup(); };
+    listEl.appendChild(li);
+  });
+
+  // markers recolour to whichever dimension is active
+  HOTELS.forEach(h => marks[h.name].setStyle({fillColor:tierColor(M.tier(h))}));
+
+  const roofs = HOTELS.filter(h=>h.roof).length;
+  footEl.textContent =
+    HOTELS.length+' hotels · '+roofs+' with a rooftop bar or lounge · sorted by '+M.label.toLowerCase()+
+    ' — distances are straight-line; taxi, subway and vibe scores are estimates, not booked data.';
+}
+
+/* ---------- segmented control ---------- */
+function setMode(k, pushHash){
+  mode = k;
+  ORDER.forEach(o => document.getElementById('m-'+o)
+    .setAttribute('aria-selected', String(o===k)));
+  indEl.style.transform = 'translateX('+(ORDER.indexOf(k)*100)+'%)';
+  if (pushHash) location.hash = k;
+  render();
+}
+ORDER.forEach(k=>{
+  document.getElementById('m-'+k).addEventListener('click',()=>setMode(k,true));
+});
+window.addEventListener('hashchange',()=>setMode(fromHash(),false));
+
+/* ---------- changelog ---------- */
+const verBtn = document.getElementById('ver'), logEl = document.getElementById('changelog');
+verBtn.addEventListener('click',()=>{
+  const open = logEl.dataset.open !== 'true';
+  logEl.dataset.open = String(open);
+  verBtn.setAttribute('aria-expanded', String(open));
+});
+
+setMode(mode,false);
+map.fitBounds(L.latLngBounds([[JAVITS.lat,JAVITS.lon],...HOTELS.map(h=>[h.lat,h.lon])]).pad(0.12));
 </script>
 </body>
 </html>
