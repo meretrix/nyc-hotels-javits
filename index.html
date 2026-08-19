@@ -296,7 +296,11 @@ li:hover .dot,li.on .dot{background:hsl(var(--marker-active))}
 .glink:focus-visible{outline:2px solid hsl(var(--surface-action-strong));outline-offset:2px;border-radius:2px}
 .glink svg{width:12px;height:12px;fill:currentColor;stroke:none;flex:none}
 
-.vibe{display:inline-flex;align-items:center;gap:6px}
+.vibe{display:inline-flex;align-items:center;gap:6px;cursor:help}
+.vlabel{
+  font-family:var(--font-inter);font-size:.625rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:hsl(var(--content-tertiary));
+}
 .pips{display:inline-flex;gap:2px}
 .pip{width:12px;height:4px;border-radius:2px;background:hsl(var(--border-medium))}
 .pip.f{background:hsl(var(--surface-feature-accent))}
@@ -356,12 +360,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub">Javits Center · 4 nights · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v3.4</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v3.5</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v3.5</dt>
+      <dd>Labelled the vibe score. The cards showed a bare number and five pips with nothing saying what they measured — now they read <b>Vibe 4.3</b>, with a hover breakdown of the cool / architecture / scene sub-scores. The popup block is retitled <b>Vibe — my subjective read</b>, since &ldquo;Ratings&rdquo; implied it came from somewhere authoritative.</dd>
       <dt>v3.4</dt>
       <dd>Removed the <b>Book in Andavo</b> hand-off added in v3.2. traveler-web reads only <code>?tab=</code> and <code>?tripId=</code>, so the link could only ever open an empty hotel search — no destination, no dates, no property. A link that strands you is worse than no link. It comes back when a URL can carry the search.</dd>
       <dt>v3.3</dt>
@@ -707,7 +713,7 @@ HOTELS.forEach(h=>{
     '<div class="via" style="margin-top:3px">'+h.train.via+'</div>'+
 
     '<hr class="pop-hr">'+
-    '<div class="pop-label">Ratings</div>'+
+    '<div class="pop-label">Vibe — my subjective read</div>'+
     '<div class="pop-row"><span>Cool</span><span>'+h.vibe.cool+'/5</span></div>'+
     '<div class="pop-row"><span>Architecture</span><span>'+h.vibe.arch+'/5</span></div>'+
     '<div class="pop-row"><span>Scene</span><span>'+h.vibe.scene+'/5</span></div>'+
@@ -776,7 +782,10 @@ function render(){
         '<span class="meta">'+
           (h.prov ? '<span class="badge badge--prov">Est. rate</span>'
                   : '<span>'+h.type+' · '+h.rooms+' rooms</span>')+
-          '<span class="vibe">'+pips(h.v)+'<span class="vnum">'+h.v.toFixed(1)+'</span></span>'+
+          '<span class="vibe" title="Vibe '+h.v.toFixed(1)+'/5 — my subjective read: '+
+            'cool '+h.vibe.cool+', architecture '+h.vibe.arch+', scene '+h.vibe.scene+'">'+
+            '<span class="vlabel">Vibe</span>'+pips(h.v)+
+            '<span class="vnum">'+h.v.toFixed(1)+'</span></span>'+
           reviewLink(h)+
           (h.rooms==='7' ? '<span class="warn">only 7 left</span>' : '')+
         '</span>'+
