@@ -205,11 +205,18 @@ aside{background:hsl(var(--surface-background));border-left:1px solid hsl(var(--
 }
 .seg button{
   position:relative;z-index:1;appearance:none;background:none;border:0;cursor:pointer;
-  font-family:var(--font-inter);font-weight:600;font-size:.75rem;letter-spacing:.02em;
-  padding:6px 4px;border-radius:calc(var(--radius) - 2px);
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  font-family:var(--font-inter);font-weight:600;font-size:.8125rem;letter-spacing:.01em;
+  padding:11px 6px;border-radius:calc(var(--radius) - 2px);
   color:hsl(var(--content-secondary));transition:color .18s ease;
 }
+.seg button svg{
+  width:16px;height:16px;flex:none;fill:none;stroke:currentColor;
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
+  opacity:.7;transition:opacity .18s ease;
+}
 .seg button[aria-selected="true"]{color:hsl(var(--content-primary))}
+.seg button[aria-selected="true"] svg{opacity:1;stroke:hsl(var(--content-action))}
 .seg button:focus-visible{outline:2px solid hsl(var(--surface-action-strong));outline-offset:1px}
 @media (prefers-reduced-motion:reduce){.seg-ind{transition:none}}
 
@@ -283,6 +290,8 @@ li:hover .dot,li.on .dot{background:hsl(var(--marker-active))}
 
 .meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   color:hsl(var(--content-tertiary));font-size:.75rem;font-family:var(--font-inter)}
+/* subjective read + crowd read, on a line of their own */
+.signals{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:1px}
 
 /* vibe meter */
 /* outbound to the real reviews — the crowd counterpoint to the vibe score */
@@ -305,6 +314,7 @@ li:hover .dot,li.on .dot{background:hsl(var(--marker-active))}
 .vnum{font-variant-numeric:tabular-nums;font-weight:600;color:hsl(var(--content-secondary))}
 
 .rt{text-align:right;white-space:nowrap;display:flex;flex-direction:column;gap:2px;align-items:flex-end}
+.rt .badge--prov{margin-top:5px}
 .tot{font-family:var(--font-inter);font-weight:600;font-size:.9375rem;font-variant-numeric:tabular-nums}
 .tot.prov,.ngt.prov{color:hsl(var(--content-secondary))}
 .tot.prov{border-bottom:1px dashed hsl(var(--border-medium));padding-bottom:1px}
@@ -357,12 +367,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub">Javits Center · 4 nights · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v3.6</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v3.7</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v3.7</dt>
+      <dd>Sort control is taller and carries icons — a pin, a dollar sign, a cocktail glass. Cards were rebalanced: the subway routing line came off (it lives in the popup), <b>vibe and reviews moved onto a line of their own</b>, and the <b>Est. rate</b> chip moved into the right-hand column beneath the figures it qualifies, rather than sitting among the room details.</dd>
       <dt>v3.6</dt>
       <dd>Vibe is now a <b>cocktail glass and a number</b> — the five-pip scale is gone. The pips spent a lot of width restating a figure already printed beside them. Also dropped the room-inventory counts; &ldquo;10+ rooms&rdquo; was true of almost every property and told you nothing. Scarcity still surfaces where it matters, on the one hotel down to seven.</dd>
       <dt>v3.5</dt>
@@ -401,9 +413,15 @@ footer{
       <span class="ctl-label">Sort</span>
       <div class="seg" role="tablist" aria-label="Sort hotels by">
         <div class="seg-ind" id="ind"></div>
-        <button role="tab" id="m-d" aria-selected="true">Distance</button>
-        <button role="tab" id="m-p" aria-selected="false">Price</button>
-        <button role="tab" id="m-v" aria-selected="false">Vibes</button>
+        <button role="tab" id="m-d" aria-selected="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.5s6.8-5.6 6.8-11a6.8 6.8 0 1 0-13.6 0c0 5.4 6.8 11 6.8 11z"/><circle cx="12" cy="10.3" r="2.5"/></svg>
+          Distance</button>
+        <button role="tab" id="m-p" aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2v17.6"/><path d="M15.8 7.6c0-1.5-1.7-2.6-3.8-2.6S8.2 6.1 8.2 7.6s1.7 2.4 3.8 2.9 3.8 1.4 3.8 3.1-1.7 2.8-3.8 2.8-3.8-1.3-3.8-2.8"/></svg>
+          Price</button>
+        <button role="tab" id="m-v" aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16l-8 8z"/><path d="M12 12v7"/><path d="M8.4 20h7.2"/></svg>
+          Vibes</button>
       </div>
     </div>
     <ol id="list"></ol>
@@ -502,37 +520,37 @@ const HOTELS = [
 
 /* --- Provisional block. Rates below are ESTIMATES, not pulled from the feed. --- */
 {name:"Arlo Midtown", addr:"351 W 39th St", lat:40.7560115, lon:-73.9925721,
- prov:true, low:429, total:1716, hiTotal:1972, rooms:"—", type:"Est. standard",
+ prov:true, low:429, total:1716, hiTotal:1972, rooms:"—", type:"Standard",
  note:"Provisional rate — not yet pulled", mi:0.53, walk:13, taxi:7,
  train:{min:14, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
  roof:"Rooftop bar", vibe:{cool:4, arch:3, scene:3}},
 
 {name:"Ink48 (Kimpton)", addr:"653 Eleventh Ave", lat:40.7645094, lon:-73.9958554,
- prov:true, low:519, total:2076, hiTotal:2396, rooms:"—", type:"Est. standard",
+ prov:true, low:519, total:2076, hiTotal:2396, rooms:"—", type:"Standard",
  note:"Provisional rate — not yet pulled", mi:0.54, walk:13, taxi:7,
  train:{min:22, lines:["A","C","E"], via:"50 St → 34 St–Penn · 2 stops"},
  roof:"The Press Lounge", vibe:{cool:4, arch:3, scene:4}},
 
 {name:"The High Line Hotel", addr:"180 Tenth Ave", lat:40.7459314, lon:-74.0050167,
- prov:true, low:625, total:2500, hiTotal:2900, rooms:"—", type:"Est. standard",
+ prov:true, low:625, total:2500, hiTotal:2900, rooms:"—", type:"Standard",
  note:"Provisional rate — not yet pulled", mi:0.87, walk:22, taxi:9,
  train:{min:18, lines:["A","C","E"], via:"23 St → 34 St–Penn · 1 stop"},
  roof:null, vibe:{cool:4, arch:5, scene:3}},
 
 {name:"CIVILIAN Hotel", addr:"305 W 48th St", lat:40.7612015, lon:-73.9871805,
- prov:true, low:479, total:1916, hiTotal:2220, rooms:"—", type:"Est. standard",
+ prov:true, low:479, total:1916, hiTotal:2220, rooms:"—", type:"Standard",
  note:"Provisional rate — not yet pulled", mi:0.81, walk:20, taxi:9,
  train:{min:15, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
  roof:"Rooftop bar + terrace", vibe:{cool:4, arch:4, scene:3}},
 
 {name:"EVEN Hotel Times Square South", addr:"321 W 35th St", lat:40.7534756, lon:-73.9938758,
- prov:true, low:389, total:1556, hiTotal:1796, rooms:"—", type:"Est. standard",
+ prov:true, low:389, total:1556, hiTotal:1796, rooms:"—", type:"Standard",
  note:"Provisional rate — not yet pulled", mi:0.55, walk:14, taxi:7,
  train:{min:15, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
  roof:null, vibe:{cool:2, arch:2, scene:1}},
 
 {name:"citizenM Times Square", addr:"218 W 50th St", lat:40.7615659, lon:-73.9849656,
- prov:true, low:465, total:1860, hiTotal:2140, rooms:"—", type:"Est. standard",
+ prov:true, low:465, total:1860, hiTotal:2140, rooms:"—", type:"Standard",
  note:"Provisional rate — not yet pulled", mi:0.92, walk:23, taxi:10,
  train:{min:15, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
  roof:"cloudM rooftop bar", vibe:{cool:3, arch:3, scene:3}}
@@ -770,21 +788,24 @@ function render(){
           '<span class="leg">'+svg('taxi')+h.taxi+' min</span>'+
           '<span class="leg'+(trainWins?' best':'')+'">'+svg('train')+h.train.min+' min'+bullets(h.train.lines)+'</span>'+
         '</span>'+
-        '<span class="via">'+h.train.via+'</span>'+
+        // routing detail lives in the popup; the card keeps only the times
         '<span class="meta">'+
-          (h.prov ? '<span class="badge badge--prov">Est. rate</span>'
-                  : '<span>'+h.type+'</span>')+
+          '<span>'+h.type+'</span>'+
+          (h.rooms==='7' ? '<span class="warn">only 7 left</span>' : '')+
+        '</span>'+
+        '<span class="signals">'+
           '<span class="vibe" title="Vibe '+h.v.toFixed(1)+' out of 5 — my subjective read: '+
             'cool '+h.vibe.cool+', architecture '+h.vibe.arch+', scene '+h.vibe.scene+'">'+
             svg('roof')+'<span class="vnum">'+h.v.toFixed(1)+'</span></span>'+
           reviewLink(h)+
-          (h.rooms==='7' ? '<span class="warn">only 7 left</span>' : '')+
         '</span>'+
       '</span>'+
       '<span class="rt">'+
         '<span class="tot'+(h.prov?' prov':'')+'">'+(h.prov?'~':'')+usd(h.total)+'</span>'+
         '<span class="ngt'+(h.prov?' prov':'')+'">'+(h.prov?'~':'')+usd(h.low)+'/night</span>'+
         '<span class="mi">'+h.mi.toFixed(2)+' mi</span>'+
+        // the estimate caveat belongs with the figures it qualifies
+        (h.prov ? '<span class="badge badge--prov">Est. rate</span>' : '')+
       '</span>';
 
     li.onmouseenter = ()=>hover(h.name, false);
