@@ -321,12 +321,14 @@ footer{
   <header>
     <h1>NYC hotels — distance from the Javits Center</h1>
     <span class="sub">4 nights · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v2.2</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v2.3</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v2.3</dt>
+      <dd>Popup blocks resequenced to <b>commute, then ratings, then price</b> — proximity to Javits is the reason for the exercise, so it leads; cost lands last as the trade-off.</dd>
       <dt>v2.2</dt>
       <dd>Property popups reordered into labelled blocks — <b>price</b>, then <b>commute</b>, then <b>ratings</b> — and each hotel now carries its <b>street address</b> under the name. Popups pick up the dark theme instead of staying white.</dd>
       <dt>v2.1</dt>
@@ -564,12 +566,6 @@ HOTELS.forEach(h=>{
     '<div class="pop-addr">'+h.addr+'</div>'+
     (h.roof ? '<div class="pop-tags"><span class="badge badge--roof">'+svg('roof')+'Rooftop</span></div>' : '')+
 
-    '<div class="pop-label">Price</div>'+
-    '<div class="pop-row"><span>4 nights</span><span>'+usd(h.total)+'</span></div>'+
-    '<div class="pop-row"><span>Per night</span><span>'+usd(h.low)+'</span></div>'+
-    '<div class="pop-row"><span>'+h.type+'</span><span>'+h.rooms+' rooms</span></div>'+
-
-    '<hr class="pop-hr">'+
     '<div class="pop-label">Commute to Javits</div>'+
     '<div class="pop-row"><span>Distance</span><span>'+h.mi.toFixed(2)+' mi</span></div>'+
     '<div class="pop-row"><span>Walk</span><span>'+h.walk+' min</span></div>'+
@@ -586,7 +582,11 @@ HOTELS.forEach(h=>{
     (h.roof ? '<div class="via" style="margin-top:4px">'+h.roof+'</div>' : '')+
 
     '<hr class="pop-hr">'+
-    '<div class="via">'+h.note+'</div>');
+    '<div class="pop-label">Price</div>'+
+    '<div class="pop-row"><span>4 nights</span><span>'+usd(h.total)+'</span></div>'+
+    '<div class="pop-row"><span>Per night</span><span>'+usd(h.low)+'</span></div>'+
+    '<div class="pop-row"><span>'+h.type+'</span><span>'+h.rooms+' rooms</span></div>'+
+    '<div class="via" style="margin-top:4px">'+h.note+'</div>');
   m.on('mouseover',()=>focus(h.name));
   m.on('mouseout',()=>focus(null));
   marks[h.name] = m;
