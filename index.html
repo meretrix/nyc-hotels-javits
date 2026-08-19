@@ -251,7 +251,6 @@ li.sel::before{
   border-radius:0 3px 3px 0;background:hsl(var(--marker-active));
 }
 li.sel .nm{color:hsl(var(--content-primary))}
-li.sel .dot{background:hsl(var(--marker-active));box-shadow:0 0 0 3px hsl(var(--marker-active)/.22)}
 li::after{  /* arrow affordance — the marketing site's card cue */
   content:'';position:absolute;right:14px;bottom:14px;
   width:7px;height:7px;border-right:1.6px solid hsl(var(--content-tertiary));
@@ -266,9 +265,6 @@ li:hover::after,li.on::after{opacity:1;right:11px}
 }
 .body{min-width:0;display:flex;flex-direction:column;gap:6px}
 .nm{font-weight:600;font-size:.9375rem;line-height:1.25rem;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-.dot{width:8px;height:8px;border-radius:50%;flex:none;
-  background:hsl(var(--marker-idle));transition:background .18s ease}
-li:hover .dot,li.on .dot{background:hsl(var(--marker-active))}
 
 /* transit strip — the new line beneath the hotel label */
 .transit{
@@ -373,12 +369,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub">Javits Center · 4 nights · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v3.8</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v3.9</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v3.9</dt>
+      <dd>Removed the small dot beside each hotel name. It was a colour key back when markers encoded price and distance bands; once every marker went neutral it carried nothing, and the selected state is already said by the rail, ring, tint and the map itself.</dd>
       <dt>v3.8</dt>
       <dd>Set the vibe figure in <b>Inter</b>, at the same size and weight as the walk, taxi and subway times. It was the one number on the card with no font stack of its own, so it inherited Plus Jakarta Sans — whose numerals are distinctive enough to read as a display face next to Inter figures.</dd>
       <dt>v3.7</dt>
@@ -788,7 +786,7 @@ function render(){
     li.innerHTML =
       '<span class="rank">'+(i+1)+'</span>'+
       '<span class="body">'+
-        '<span class="nm"><i class="dot"></i>'+h.name+
+        '<span class="nm">'+h.name+
           (h.roof ? '<span class="badge badge--roof">'+svg('roof')+'Rooftop</span>' : '')+
         '</span>'+
         '<span class="transit">'+
