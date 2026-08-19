@@ -296,18 +296,6 @@ li:hover .dot,li.on .dot{background:hsl(var(--marker-active))}
 .glink:focus-visible{outline:2px solid hsl(var(--surface-action-strong));outline-offset:2px;border-radius:2px}
 .glink svg{width:12px;height:12px;fill:currentColor;stroke:none;flex:none}
 
-/* Andavo hand-off — quieter than Reviews, since it can't land on the property */
-.alink{
-  display:inline-flex;align-items:center;gap:4px;
-  font-family:var(--font-inter);font-size:.6875rem;font-weight:600;
-  color:hsl(var(--content-secondary));text-decoration:none;
-  border-bottom:1px solid transparent;
-}
-.alink:hover{color:hsl(var(--content-action));border-bottom-color:hsl(var(--content-action))}
-.alink:focus-visible{outline:2px solid hsl(var(--surface-action-strong));outline-offset:2px;border-radius:2px}
-.alink svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.8;
-  stroke-linecap:round;stroke-linejoin:round;flex:none}
-
 .vibe{display:inline-flex;align-items:center;gap:6px}
 .pips{display:inline-flex;gap:2px}
 .pip{width:12px;height:4px;border-radius:2px;background:hsl(var(--border-medium))}
@@ -368,12 +356,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub">Javits Center · 4 nights · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v3.3</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v3.4</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v3.4</dt>
+      <dd>Removed the <b>Book in Andavo</b> hand-off added in v3.2. traveler-web reads only <code>?tab=</code> and <code>?tripId=</code>, so the link could only ever open an empty hotel search — no destination, no dates, no property. A link that strands you is worse than no link. It comes back when a URL can carry the search.</dd>
       <dt>v3.3</dt>
       <dd>Map and list are now <b>two views of one selection</b>. Picking a dot highlights its card and scrolls the list to it; picking a card lights the dot — the same state drives both. Selection is also a real state now, distinct from hover: hovering stays a light preview, while the selected card gets an accent rail, a ring and a tinted ground, and survives re-sorting.</dd>
       <dt>v3.2</dt>
@@ -583,18 +573,12 @@ const reviewLink = h =>
   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.8.85-4.2 4.1 1 5.75L12 16.9l-5.2 2.7 1-5.75-4.2-4.1 5.8-.85z"/></svg>'+
   'Reviews</a>';
 
-/* Andavo traveler-web only exposes ?tab= and ?tripId= — there is no property
-   route on web, and mobile's /property/[offerId] is keyed to an ephemeral
-   offer from a live search. So this opens the hotel search tab (behind auth),
-   it cannot land on the property. Labelled honestly for that reason. */
-const ANDAVO_HOTEL_TAB = 'https://app.andavo.com/?tab=hotel';
-const andavoLink = h =>
-  '<a class="alink" href="'+ANDAVO_HOTEL_TAB+'" target="_blank" rel="noopener noreferrer"'+
-  ' onclick="event.stopPropagation()"'+
-  ' title="Opens Andavo hotel search (sign-in required) — search is not pre-filled">'+
-  '<svg viewBox="0 0 24 24" aria-hidden="true">'+
-  '<path d="M4 20h16M6 20V9.5l6-4 6 4V20M10 20v-4.5h4V20"/></svg>'+
-  'Book in Andavo</a>';
+/* No Andavo hand-off here yet, deliberately. traveler-web reads only ?tab=
+   and ?tripId=, so any link would dump the traveler on an empty hotel search
+   with no destination, dates or property — worse than sending nothing. The
+   pieces to fix it exist (useSetHotelDestinationSelection + the check-in and
+   check-out setters); what's missing is a URL binding to drive them. Restore
+   a link once that lands. */
 
 /* ---------- sort modes ---------- */
 const MODES = {
@@ -794,7 +778,6 @@ function render(){
                   : '<span>'+h.type+' · '+h.rooms+' rooms</span>')+
           '<span class="vibe">'+pips(h.v)+'<span class="vnum">'+h.v.toFixed(1)+'</span></span>'+
           reviewLink(h)+
-          andavoLink(h)+
           (h.rooms==='7' ? '<span class="warn">only 7 left</span>' : '')+
         '</span>'+
       '</span>'+
