@@ -225,11 +225,26 @@ li{
   cursor:pointer;align-items:start;
   transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
+/* hover = light preview */
 li:hover,li.on{
   border-color:hsl(var(--border-medium));
   box-shadow:var(--shadow-raise);
   transform:translateY(-1px);
 }
+/* selected = unmistakable. Ring + accent rail + tinted ground, so a card
+   picked from the map is findable at a glance after the list scrolls. */
+li.sel,li.sel:hover{
+  border-color:hsl(var(--marker-active));
+  background:hsl(var(--marker-active)/.10);
+  box-shadow:0 0 0 3px hsl(var(--marker-active)/.20), var(--shadow-raise);
+  transform:translateY(-1px);
+}
+li.sel::before{
+  content:'';position:absolute;left:0;top:11px;bottom:11px;width:3px;
+  border-radius:0 3px 3px 0;background:hsl(var(--marker-active));
+}
+li.sel .nm{color:hsl(var(--content-primary))}
+li.sel .dot{background:hsl(var(--marker-active));box-shadow:0 0 0 3px hsl(var(--marker-active)/.22)}
 li::after{  /* arrow affordance — the marketing site's card cue */
   content:'';position:absolute;right:14px;bottom:14px;
   width:7px;height:7px;border-right:1.6px solid hsl(var(--content-tertiary));
@@ -353,12 +368,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub">Javits Center · 4 nights · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v3.2</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v3.3</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v3.3</dt>
+      <dd>Map and list are now <b>two views of one selection</b>. Picking a dot highlights its card and scrolls the list to it; picking a card lights the dot — the same state drives both. Selection is also a real state now, distinct from hover: hovering stays a light preview, while the selected card gets an accent rail, a ring and a tinted ground, and survives re-sorting.</dd>
       <dt>v3.2</dt>
       <dd>Added a <b>Book in Andavo</b> hand-off per hotel, opening the hotel search tab at app.andavo.com behind sign-in. It deliberately does <i>not</i> claim to land on the property: traveler-web has no property route, and mobile’s is keyed to an ephemeral offer id from a live search — so no stable per-hotel link exists to point at yet. Styled quieter than the Reviews link for the same reason.</dd>
       <dt>v3.1</dt>
@@ -596,7 +613,14 @@ let mode = fromHash();
 const tokenHsl = n => 'hsl(' + getComputedStyle(document.documentElement)
   .getPropertyValue('--'+n).trim() + ')';
 const usd = n => '$' + Math.round(n).toLocaleString('en-US');
-let focused = null;   // the one hotel currently pointed at
+/* Two distinct states. `hovered` is a transient preview and follows the
+   pointer from either side; `selected` persists until you pick another or
+   close the popup. Map and list are driven from the same pair, so pointing
+   at a dot and pointing at a card produce the same result in both places. */
+let hovered  = null;
+let selected = null;
+const active = () => hovered || selected;
+const rows   = {};   // hotel name -> its <li>, so the map can reach the list
 
 /* ---------- map ---------- */
 const map = L.map('map',{scrollWheelZoom:true}).setView([40.7385,-73.9985],13);
@@ -650,20 +674,37 @@ const marks = {};
 /* One neutral for every hotel; the focused one is the only saturated thing
    on the map besides the Javits cube. */
 function paint(){
-  const idle = tokenHsl('marker-idle'), active = tokenHsl('marker-active');
+  const idle = tokenHsl('marker-idle'), hot = tokenHsl('marker-active');
+  const cur = active();
   HOTELS.forEach(h=>{
-    const on = h.name === focused;
+    const on = h.name === cur;
     marks[h.name].setStyle({
-      fillColor: on ? active : idle,
-      radius: on ? 13 : 9,
+      fillColor: on ? hot : idle,
+      radius: on ? 14 : 9,
       fillOpacity: 1,
       dashArray: h.prov ? '2 2' : null,   // dashed ring = rate not yet pulled
-      weight: h.prov ? 2.5 : 2
+      weight: on ? 3 : (h.prov ? 2.5 : 2)
     });
     if (on) marks[h.name].bringToFront();
   });
 }
-function focus(name){ focused = name; paint(); }
+
+/* Mirror map state onto the list. `scroll` is only true when the interaction
+   started on the map — scrolling while the pointer is in the list would yank
+   the row out from under the cursor. */
+function syncList(scroll){
+  HOTELS.forEach(h=>{
+    const li = rows[h.name];
+    if (!li) return;
+    li.classList.toggle('on',  h.name === hovered);
+    li.classList.toggle('sel', h.name === selected);
+  });
+  const target = rows[active()];
+  if (scroll && target) target.scrollIntoView({block:'nearest', behavior:'smooth'});
+}
+
+function hover(name, fromMap){ hovered  = name; paint(); syncList(!!fromMap); }
+function select(name, fromMap){ selected = name; paint(); syncList(!!fromMap); }
 
 HOTELS.forEach(h=>{
   const m = L.circleMarker([h.lat,h.lon],{radius:9,color:'#fff',weight:2,fillOpacity:1}).addTo(map);
@@ -698,8 +739,12 @@ HOTELS.forEach(h=>{
     (h.prov ? '' : '<div class="pop-row"><span>'+h.type+'</span><span>'+h.rooms+' rooms</span></div>')+
     '<div class="via" style="margin-top:4px">'+
       (h.prov ? 'Estimate only — this rate has not been pulled yet.' : h.note)+'</div>');
-  m.on('mouseover',()=>focus(h.name));
-  m.on('mouseout',()=>focus(null));
+  m.on('mouseover',()=>hover(h.name, true));
+  m.on('mouseout', ()=>hover(null,   false));
+  // popupopen covers both paths: clicking the dot, and clicking the card
+  // (which calls openPopup) — so selection has exactly one entry point.
+  m.on('popupopen', ()=>select(h.name, true));
+  m.on('popupclose',()=>{ if (selected === h.name) select(null, false); });
   marks[h.name] = m;
 });
 
@@ -718,7 +763,7 @@ function pips(v){
 
 function render(){
   const M = MODES[mode];
-  const rows = [...HOTELS].sort(M.sort);
+  const ordered = [...HOTELS].sort(M.sort);
 
   legendEl.innerHTML =
     '<span><i class="sw sw--javits"></i>Javits Center</span>' +
@@ -727,7 +772,8 @@ function render(){
     '<span><i class="sw" style="background:'+tokenHsl('marker-active')+'"></i>Hovered</span>';
 
   listEl.innerHTML = '';
-  rows.forEach((h,i)=>{
+  Object.keys(rows).forEach(k => delete rows[k]);  // <li>s are rebuilt below
+  ordered.forEach((h,i)=>{
     // the train only earns emphasis when it actually beats walking
     const trainWins = h.train.min < h.walk;
     const li = document.createElement('li');
@@ -758,13 +804,15 @@ function render(){
         '<span class="mi">'+h.mi.toFixed(2)+' mi</span>'+
       '</span>';
 
-    li.onmouseenter = ()=>{ li.classList.add('on'); focus(h.name); };
-    li.onmouseleave = ()=>{ li.classList.remove('on'); focus(null); };
+    li.onmouseenter = ()=>hover(h.name, false);
+    li.onmouseleave = ()=>hover(null,   false);
     li.onclick      = ()=>{ map.setView([h.lat,h.lon],15); marks[h.name].openPopup(); };
+    rows[h.name] = li;
     listEl.appendChild(li);
   });
 
   paint();
+  syncList(false);   // a selection survives re-sorting
 
   const roofs = HOTELS.filter(h=>h.roof).length;
   const prov  = HOTELS.filter(h=>h.prov).length;
