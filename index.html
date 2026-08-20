@@ -61,6 +61,7 @@
   --marker-idle:var(--neutral-600);
   --marker-active:var(--brand-500);
   --content-warning:var(--warning-800);
+  --content-danger:var(--danger-700);
   --javits:var(--accent-indigo-600);
 
   --radius:0.5rem;
@@ -83,6 +84,7 @@
     --marker-idle:var(--neutral-300);
     --marker-active:var(--brand-400,192 93% 60%);
     --content-warning:var(--warning-400);
+    --content-danger:var(--danger-400);
     --javits:var(--accent-pink-300);
   }
 }
@@ -115,7 +117,13 @@ h1{font-size:1.25rem;line-height:1.5rem;margin:0;letter-spacing:-.025em;font-wei
   font-family:var(--font-inter);font-weight:600;font-size:.625rem;
   letter-spacing:.06em;text-transform:uppercase;
   display:inline-flex;align-items:center;gap:4px;
-  padding:3px 8px;border-radius:999px;white-space:nowrap;
+  /* line-height:1 is the fix — inheriting body's 1.5 was adding ~5px of
+     invisible leading inside every chip, which read as fat padding */
+  line-height:1;padding:4px 7px;border-radius:999px;white-space:nowrap;
+}
+.badge--oop{
+  background:hsl(var(--content-danger)/.14);
+  color:hsl(var(--content-danger));
 }
 .badge--version{
   background:hsl(var(--surface-action-subtle));
@@ -191,8 +199,29 @@ aside{background:hsl(var(--surface-background));border-left:1px solid hsl(var(--
   position:sticky;top:0;z-index:5;
   background:hsl(var(--surface-background));
   border-bottom:1px solid hsl(var(--border-subtle));
-  padding:14px 18px;display:flex;gap:12px;align-items:center;
+  padding:14px 18px;display:flex;flex-direction:column;gap:10px;align-items:stretch;
 }
+/* out-of-policy toggle */
+.switch{
+  display:inline-flex;align-items:center;gap:8px;align-self:flex-start;
+  background:none;border:0;padding:0;cursor:pointer;
+  font-family:var(--font-inter);font-size:.75rem;font-weight:600;
+  color:hsl(var(--content-secondary));transition:color .18s ease;
+}
+.switch .track{
+  width:32px;height:18px;border-radius:999px;flex:none;position:relative;
+  background:hsl(var(--border-medium));transition:background .18s ease;
+}
+.switch .knob{
+  position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+  background:#fff;box-shadow:var(--shadow-raise);transition:transform .18s ease;
+}
+.switch[aria-checked="true"]{color:hsl(var(--content-primary))}
+.switch[aria-checked="true"] .track{background:hsl(var(--surface-action-strong))}
+.switch[aria-checked="true"] .knob{transform:translateX(14px)}
+.switch:focus-visible{outline:2px solid hsl(var(--surface-action-strong));outline-offset:3px;border-radius:4px}
+.switch .cnt{color:hsl(var(--content-tertiary));font-weight:500}
+@media (prefers-reduced-motion:reduce){.switch .track,.switch .knob{transition:none}}
 .ctl-label{
   font-family:var(--font-inter);font-size:.625rem;letter-spacing:.1em;text-transform:uppercase;
   color:hsl(var(--content-tertiary));font-weight:600;flex:none;
@@ -361,8 +390,8 @@ footer{
   color:hsl(var(--content-secondary));margin-top:3px;margin-bottom:11px;
 }
 .pop-tags{margin-top:-5px;margin-bottom:11px}
-.badge--roof svg{width:11px;height:11px;fill:none;stroke:currentColor;
-  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.badge--roof svg{width:10px;height:10px;fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .pop-label{
   font-family:var(--font-inter);font-weight:600;font-size:.625rem;
   letter-spacing:.09em;text-transform:uppercase;
@@ -381,12 +410,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub">Javits Center · 4 nights · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.2</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.3</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v4.3</dt>
+      <dd>Nothing is filtered out by default any more. Everything over <b>$560 a night</b> is ranked alongside the rest and carries a red <b>Out of policy</b> badge, with a <b>Show out of policy</b> switch to hide those seven when you want a clean list. Policy is a property of the hotel, so the badge and the switch work in all four tabs, not just Best value. Also tightened every badge — they were inheriting the body’s 1.5 line-height, which added invisible leading and read as heavy padding.</dd>
       <dt>v4.2</dt>
       <dd>New <b>Best value</b> tab, now the default. It drops anything over <b>$560 a night</b>, then ranks what is left on <b>price and distance together</b> — both min-max normalised across the surviving pool so neither dominates, penalties summed, lowest wins. Excluded properties fade on the map rather than vanishing, so you can still see what the cap removed.</dd>
       <dt>v4.1</dt>
@@ -449,6 +480,10 @@ footer{
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16l-8 8z"/><path d="M12 12v7"/><path d="M8.4 20h7.2"/></svg>
           Vibes</button>
       </div>
+      <button class="switch" id="oop" role="switch" aria-checked="true">
+        <span class="track"><span class="knob"></span></span>
+        Show out of policy <span class="cnt" id="oopcnt"></span>
+      </button>
     </div>
     <ol id="list"></ol>
   </aside>
@@ -652,20 +687,28 @@ const reviewLink = h =>
    distance together. Both are min-max normalised across the surviving pool so
    neither dominates just because dollars are bigger numbers than miles; the
    two normalised penalties are summed, lowest total wins. */
-const VALUE_CAP = 560;                       // max nightly rate, USD
+const VALUE_CAP = 560;                       // policy ceiling, USD per night
+const oop = h => h.low > VALUE_CAP;          // out of policy
 const nrm = (v,lo,hi) => hi > lo ? (v-lo)/(hi-lo) : 0;
+
+/* Every hotel is scored, but the 0-1 scale is pinned to the IN-POLICY pool.
+   Two reasons: Pendry at $1,526 would otherwise stretch the price axis so far
+   that distance stopped mattering, and pinning keeps the in-policy ranking
+   identical whether or not out-of-policy rows are being shown. Out-of-policy
+   hotels simply score past 1 on the price axis and land below. */
 function bestValue(){
-  const pool = HOTELS.filter(h => h.low <= VALUE_CAP);
-  if (!pool.length) return [];
-  const pLo=Math.min(...pool.map(h=>h.low)), pHi=Math.max(...pool.map(h=>h.low));
-  const dLo=Math.min(...pool.map(h=>h.mi)),  dHi=Math.max(...pool.map(h=>h.mi));
-  return pool
+  const pool = HOTELS.filter(h => !oop(h));
+  const ref  = pool.length ? pool : HOTELS;
+  const pLo=Math.min(...ref.map(h=>h.low)), pHi=Math.max(...ref.map(h=>h.low));
+  const dLo=Math.min(...ref.map(h=>h.mi)),  dHi=Math.max(...ref.map(h=>h.mi));
+  return [...HOTELS]
     .map(h => ({h, s: nrm(h.low,pLo,pHi) + nrm(h.mi,dLo,dHi)}))
     .sort((a,b) => a.s - b.s)
     .map(x => x.h);
 }
+let showOOP = true;
 const MODES = {
-  b:{label:'Best value', list:bestValue, capped:true},
+  b:{label:'Best value', list:bestValue},
   d:{label:'Distance',   list:()=>[...HOTELS].sort((a,b)=>a.mi-b.mi)},
   p:{label:'Price',      list:()=>[...HOTELS].sort((a,b)=>a.total-b.total)},
   v:{label:'Vibes',      list:()=>[...HOTELS].sort((a,b)=>b.v-a.v)}
@@ -809,6 +852,7 @@ HOTELS.forEach(h=>{
     '<div class="pop-row"><span>Per night</span><span>'+(h.prov?'~':'')+usd(h.low)+'</span></div>'+
     (h.prov ? '' : '<div class="pop-row"><span>Room type</span><span>'+h.type+'</span></div>')+
     '<div class="pop-row"><span>Rate</span><span>'+(h.neg?'Negotiated':'Market')+'</span></div>'+
+    (oop(h) ? '<div class="pop-row"><span>Policy</span><span style="color:hsl(var(--content-danger))">Over $'+VALUE_CAP+'/night</span></div>' : '')+
     '<div class="via" style="margin-top:3px">'+h.rateType+'</div>'+
     '<div class="via" style="margin-top:4px">'+
       (h.prov ? 'Estimate only — this rate has not been pulled yet.' : h.note)+'</div>');
@@ -829,13 +873,13 @@ const footEl   = document.getElementById('foot');
 
 function render(){
   const M = MODES[mode];
-  const ordered = M.list();
+  const ordered = M.list().filter(h => showOOP || !oop(h));
   visible = new Set(ordered.map(h=>h.name));
 
   legendEl.innerHTML =
     '<span><i class="sw sw--javits"></i>Javits Center</span>' +
     '<span><i class="sw" style="background:'+tokenHsl('marker-idle')+'"></i>Hotel</span>' +
-    (M.capped ? '<span><i class="sw sw--out"></i>over $'+VALUE_CAP+'/night</span>' : '') +
+    (!showOOP ? '<span><i class="sw sw--out"></i>hidden: over $'+VALUE_CAP+'/night</span>' : '') +
     (HOTELS.some(x=>x.prov) ? '<span><i class="sw sw--prov"></i>Provisional rate</span>' : '') +
     '<span><i class="sw" style="background:'+tokenHsl('marker-active')+'"></i>Hovered</span>';
 
@@ -873,6 +917,7 @@ function render(){
         '<span class="ngt'+(h.prov?' prov':'')+'">'+(h.prov?'~':'')+usd(h.low)+'/night</span>'+
         '<span class="mi">'+h.mi.toFixed(2)+' mi</span>'+
         // rate provenance belongs with the figures it qualifies
+        (oop(h) ? '<span class="badge badge--oop">Out of policy</span>' : '')+
         '<span class="badge badge--'+(h.neg?'neg">Negotiated':'mkt">Market')+'</span>'+
         (h.prov ? '<span class="badge badge--prov">Est. rate</span>' : '')+
       '</span>';
@@ -890,11 +935,12 @@ function render(){
   const roofs = HOTELS.filter(h=>h.roof).length;
   const prov  = HOTELS.filter(h=>h.prov).length;
   const neg   = HOTELS.filter(h=>h.neg).length;
+  const nOop  = HOTELS.filter(oop).length;
   footEl.textContent =
-    (M.capped
-      ? ordered.length+' of '+HOTELS.length+' hotels at or under $'+VALUE_CAP+'/night, ranked on price and distance together — '+
-        (HOTELS.length-ordered.length)+' pricier properties are faded on the map, not in the list. '
-      : HOTELS.length+' hotels · '+roofs+' with a rooftop bar or lounge · '+neg+' negotiated (BCD), '+(HOTELS.length-neg)+' market-only · sorted by '+M.label.toLowerCase()+'. ')+
+    ordered.length+(showOOP?'':' of '+HOTELS.length)+' hotels · '+
+    nOop+' over $'+VALUE_CAP+'/night'+(showOOP?' (flagged out of policy)':' hidden')+' · '+
+    neg+' negotiated (BCD), '+(HOTELS.length-neg)+' market-only · '+
+    (mode==='b' ? 'ranked on price and distance together' : 'sorted by '+M.label.toLowerCase())+'. '+
     'Rates are the lowest refundable, non-AAA, standard/deluxe, 4 nights. '+
     'Distances are straight-line; taxi, subway and vibe scores are estimates.'+
     (prov ? ' '+prov+' rates are provisional and have not been pulled yet.' : '');
@@ -915,6 +961,14 @@ ORDER.forEach(k=>{
 window.addEventListener('hashchange',()=>setMode(fromHash(),false));
 
 /* ---------- changelog ---------- */
+const oopBtn = document.getElementById('oop');
+document.getElementById('oopcnt').textContent = '(' + HOTELS.filter(oop).length + ')';
+oopBtn.addEventListener('click', ()=>{
+  showOOP = !showOOP;
+  oopBtn.setAttribute('aria-checked', String(showOOP));
+  render();
+});
+
 const verBtn = document.getElementById('ver'), logEl = document.getElementById('changelog');
 verBtn.addEventListener('click',()=>{
   const open = logEl.dataset.open !== 'true';
