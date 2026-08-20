@@ -435,12 +435,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub" id="sub">Javits Center · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.1</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.2</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v5.2</dt>
+      <dd>Dropped <b>Sheraton Tribeca</b> from the curated view. Nine hotels on the plain URL; still reachable on <b>?all=1</b>.</dd>
       <dt>v5.1</dt>
       <dd>One page, two views. The plain URL shows a <b>curated ten</b> — eight in policy plus The Standard and The High Line Hotel. Adding <b>?all=1</b> shows the full working list of fifteen. A single codebase, so anything fixed in one view is fixed in both.</dd>
       <dt>v4.9</dt>
@@ -621,7 +623,7 @@ const HOTELS = [
  train:{min:28, lines:["F"], via:"2 Av \u2192 34 St\u2013Herald Sq \u00b7 4 stops"},
  roof:"PUBLIC rooftop bar", vibe:{cool:4, arch:4, scene:4}},
 
-{name:"Sheraton Tribeca", share:true, addr:"370 Canal St", lat:40.7208780, lon:-74.0041220,
+{name:"Sheraton Tribeca", addr:"370 Canal St", lat:40.7208780, lon:-74.0041220,
  low:479.00, total:1916.00, hiTotal:2236.00, rooms:"10+", type:"Guest room",
  neg:false, rateType:"Member Retail Rate (market)",
  note:"No negotiated rate returned; superior room option", mi:2.59, walk:65, taxi:20,
