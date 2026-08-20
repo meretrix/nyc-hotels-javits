@@ -435,14 +435,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub" id="sub">Javits Center · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.0</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.1</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
-      <dt>v5.0</dt>
-      <dd>The published page is now a <b>curated ten</b> — eight in policy plus The Standard and The High Line Hotel. It is generated from a fuller local master rather than maintained separately, so the properties left out are absent from the published file entirely rather than hidden inside it.</dd>
+      <dt>v5.1</dt>
+      <dd>One page, two views. The plain URL shows a <b>curated ten</b> — eight in policy plus The Standard and The High Line Hotel. Adding <b>?all=1</b> shows the full working list of fifteen. A single codebase, so anything fixed in one view is fixed in both.</dd>
       <dt>v4.9</dt>
       <dd>Removed <b>Courtyard Midtown West</b>. Fifteen hotels, ten in policy — and with it gone, every remaining property inside the half-mile ring is one you can actually book.</dd>
       <dt>v4.8</dt>
@@ -551,70 +551,105 @@ footer{
 const JAVITS = {name:'Jacob K. Javits Convention Center', lat:40.7583595, lon:-74.0021206};
 
 const HOTELS = [
-{name:"Arlo Midtown", addr:"351 W 39th St", lat:40.7560115, lon:-73.9925721,
+{name:"Arlo Midtown", share:true, addr:"351 W 39th St", lat:40.7560115, lon:-73.9925721,
  low:391.25, total:1565.00, hiTotal:2785.00, rooms:"10+", type:"King room",
  neg:true, rateType:"BCD Travel Hotel Program",
  note:"Negotiated beats market here (market low $414.50); king, urban, terrace rooms", mi:0.53, walk:13, taxi:7,
  train:{min:14, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
  roof:"Rooftop bar", vibe:{cool:4, arch:3, scene:3}},
 
-{name:"Ink48 (Kimpton)", addr:"653 Eleventh Ave", lat:40.7645094, lon:-73.9958554,
+{name:"Ink48 (Kimpton)", share:true, addr:"653 Eleventh Ave", lat:40.7645094, lon:-73.9958554,
  low:445.50, total:1782.00, hiTotal:3182.00, rooms:"10+", type:"King room",
  neg:true, rateType:"BCD Travel Hotel Program",
  note:"Negotiated is lowest (market $456.75); king, premier, deluxe, studio rooms", mi:0.54, walk:13, taxi:7,
  train:{min:22, lines:["A","C","E"], via:"50 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
  roof:"The Press Lounge", vibe:{cool:4, arch:3, scene:4}},
 
-{name:"CIVILIAN Hotel", addr:"305 W 48th St", lat:40.7612015, lon:-73.9871805,
+{name:"CIVILIAN Hotel", share:true, addr:"305 W 48th St", lat:40.7612015, lon:-73.9871805,
  low:458.75, total:1835.00, hiTotal:2608.00, rooms:"10+", type:"Standard",
  neg:true, rateType:"BCD Travel Hotel Program",
  note:"Negotiated is lowest (market $459.00); Stay More & Save, breakfast options", mi:0.81, walk:20, taxi:9,
  train:{min:15, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
  roof:"Rooftop bar + terrace", vibe:{cool:4, arch:4, scene:3}},
 
-{name:"The High Line Hotel", addr:"180 Tenth Ave", lat:40.7459314, lon:-74.0050167,
+{name:"The High Line Hotel", share:true, addr:"180 Tenth Ave", lat:40.7459314, lon:-74.0050167,
  low:793.25, total:3173.00, hiTotal:5636.00, rooms:"10+", type:"Standard guest room",
  neg:true, rateType:"BCD Hotel Directory",
  note:"Negotiated beats market (Best Flexible $881.50); standard + deluxe rooms", mi:0.87, walk:22, taxi:9,
  train:{min:18, lines:["A","C","E"], via:"23 St \u2192 34 St\u2013Penn \u00b7 1 stop"},
  roof:null, vibe:{cool:4, arch:5, scene:3}},
 
-{name:"The Maritime Hotel", addr:"363 W 16th St", lat:40.7424358, lon:-74.0038670,
+{name:"Courtyard Manhattan/Times Sq", addr:"114 W 40th St", lat:40.7536218, lon:-73.9861665,
+ low:395.00, total:1580.00, hiTotal:1856.00, rooms:"10+", type:"Guest room",
+ neg:false, rateType:"Long Term Stay (public)",
+ note:"Long Term Stay / Member Retail; no negotiated rate returned", mi:0.90, walk:22, taxi:10,
+ train:{min:12, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
+ roof:null, vibe:{cool:1, arch:1, scene:2}},
+
+{name:"The Maritime Hotel", share:true, addr:"363 W 16th St", lat:40.7424358, lon:-74.0038670,
  low:532.31, total:2129.24, hiTotal:2505.00, rooms:"10+", type:"Standard/Accessible",
  neg:true, rateType:"BCD Travel / SMERATE",
  note:"All returned rates are BCD; some incl. breakfast/WiFi", mi:1.10, walk:28, taxi:11,
  train:{min:19, lines:["A","C","E"], via:"14 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
  roof:"Rooftop bar + garden terrace", vibe:{cool:4, arch:5, scene:4}},
 
-{name:"The Standard High Line", addr:"848 Washington St", lat:40.7408533, lon:-74.0080841,
+{name:"The Standard High Line", share:true, addr:"848 Washington St", lat:40.7408533, lon:-74.0080841,
  low:753.50, total:3014.00, hiTotal:3648.00, rooms:"10+", type:"Standard guest room",
  neg:false, rateType:"Standard Rate (market)",
  note:"No negotiated rate returned; deluxe + premium rooms", mi:1.25, walk:31, taxi:12,
  train:{min:21, lines:["A","C","E"], via:"14 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
  roof:"Le Bain + Top of the Standard", vibe:{cool:5, arch:5, scene:5}},
 
-{name:"PUBLIC", addr:"215 Chrystie St", lat:40.7230653, lon:-73.9920127,
+{name:"Gansevoort Meatpacking", addr:"18 Ninth Ave", lat:40.7398769, lon:-74.0057111,
+ low:858.60, total:3434.40, hiTotal:3866.40, rooms:"10+", type:"Superior room",
+ neg:true, rateType:"BCD BCP",
+ note:"All returned rates are BCD BCP; superior + deluxe rooms", mi:1.29, walk:32, taxi:12,
+ train:{min:21, lines:["A","C","E"], via:"14 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
+ roof:"Rooftop pool + bar", vibe:{cool:3, arch:3, scene:4}},
+
+{name:"The Manner (Hyatt)", addr:"151 Thompson St", lat:40.7270663, lon:-74.0010162,
+ low:858.25, total:3433.00, hiTotal:4851.00, rooms:"10+", type:"Standard",
+ neg:true, rateType:"BCD Travel",
+ note:"Negotiated ties market ($858.25); standard + deluxe", mi:2.16, walk:54, taxi:18,
+ train:{min:24, lines:["C","E"], via:"Spring St \u2192 34 St\u2013Penn \u00b7 4 stops"},
+ roof:"Rooftop terrace bar", vibe:{cool:5, arch:4, scene:4}},
+
+{name:"PUBLIC", share:true, addr:"215 Chrystie St", lat:40.7230653, lon:-73.9920127,
  low:526.50, total:2106.00, hiTotal:2691.00, rooms:"10+", type:"Standard",
  neg:true, rateType:"BCD Travel Hotel Program",
  note:"All returned rates are BCD; double room option", mi:2.50, walk:62, taxi:20,
  train:{min:28, lines:["F"], via:"2 Av \u2192 34 St\u2013Herald Sq \u00b7 4 stops"},
  roof:"PUBLIC rooftop bar", vibe:{cool:4, arch:4, scene:4}},
 
-{name:"Sheraton Tribeca", addr:"370 Canal St", lat:40.7208780, lon:-74.0041220,
+{name:"Sheraton Tribeca", share:true, addr:"370 Canal St", lat:40.7208780, lon:-74.0041220,
  low:479.00, total:1916.00, hiTotal:2236.00, rooms:"10+", type:"Guest room",
  neg:false, rateType:"Member Retail Rate (market)",
  note:"No negotiated rate returned; superior room option", mi:2.59, walk:65, taxi:20,
  train:{min:24, lines:["A","C","E"], via:"Canal St \u2192 34 St\u2013Penn \u00b7 3 stops"},
  roof:null, vibe:{cool:1, arch:1, scene:1}},
 
-{name:"citizenM New York Bowery", addr:"189 Bowery", lat:40.7205955, lon:-73.9934478,
+{name:"Sixty LES", addr:"189 Allen St", lat:40.7218303, lon:-73.9892736,
+ low:403.33, total:1613.32, hiTotal:1988.88, rooms:"10+", type:"Studio room",
+ neg:true, rateType:"BCD Travel Program",
+ note:"BCD ties the public Plan Ahead rate; studio & junior suite", mi:2.61, walk:65, taxi:20,
+ train:{min:28, lines:["F"], via:"2 Av \u2192 34 St\u2013Herald Sq \u00b7 4 stops"},
+ roof:"Rooftop pool + bar", vibe:{cool:4, arch:3, scene:4}},
+
+{name:"citizenM New York Bowery", share:true, addr:"189 Bowery", lat:40.7205955, lon:-73.9934478,
  low:450.25, total:1801.00, hiTotal:1962.00, rooms:"10+", type:"Guest room",
  neg:false, rateType:"Stay and Save (market)",
  note:"No negotiated rate returned; accessible, high-floor, premium-view", mi:2.65, walk:66, taxi:20,
  train:{min:28, lines:["F"], via:"2 Av \u2192 34 St\u2013Herald Sq \u00b7 4 stops"},
  roof:"cloudM rooftop bar", vibe:{cool:3, arch:3, scene:3}},
 
-{name:"Moxy NYC Downtown", addr:"26 Ann St", lat:40.7108496, lon:-74.0080046,
+{name:"Merchant LES Hotel", addr:"139 Orchard St", lat:40.7199657, lon:-73.9893970,
+ low:594.00, total:2376.00, hiTotal:3176.00, rooms:"7", type:"Standard",
+ neg:false, rateType:"Best Available Rate (market)",
+ note:"No negotiated rate returned", mi:2.74, walk:68, taxi:21,
+ train:{min:28, lines:["F"], via:"Delancey\u2013Essex \u2192 34 St\u2013Herald Sq \u00b7 5 stops"},
+ roof:null, vibe:{cool:3, arch:3, scene:3}},
+
+{name:"Moxy NYC Downtown", share:true, addr:"26 Ann St", lat:40.7108496, lon:-74.0080046,
  low:473.85, total:1895.40, hiTotal:2075.40, rooms:"10+", type:"Standard",
  neg:false, rateType:"Stay 3 and Save (non-member)",
  note:"No negotiated rate returned; accessible available", mi:3.30, walk:82, taxi:25,
@@ -624,6 +659,13 @@ const HOTELS = [
 
 /* composite vibe score, one decimal */
 HOTELS.forEach(h => { h.v = (h.vibe.cool + h.vibe.arch + h.vibe.scene) / 3; });
+
+/* The clean URL shows the curated set; ?all=1 shows the full working list.
+   Everything downstream reads ROSTER, never HOTELS, so the two views share
+   one codebase and can't drift. Note the excluded hotels are still present
+   in the page source — this is a curated default, not a private list. */
+const SHOW_ALL = new URLSearchParams(location.search).has('all');
+const ROSTER = SHOW_ALL ? HOTELS.slice() : HOTELS.filter(h => h.share);
 
 /* ---------- MTA line colours ---------- */
 const MTA = {
@@ -691,11 +733,11 @@ const nrm = (v,lo,hi) => hi > lo ? (v-lo)/(hi-lo) : 0;
    identical whether or not out-of-policy rows are being shown. Out-of-policy
    hotels simply score past 1 on the price axis and land below. */
 function bestValue(){
-  const pool = HOTELS.filter(h => !oop(h));
-  const ref  = pool.length ? pool : HOTELS;
+  const pool = ROSTER.filter(h => !oop(h));
+  const ref  = pool.length ? pool : ROSTER;
   const pLo=Math.min(...ref.map(h=>h.low)), pHi=Math.max(...ref.map(h=>h.low));
   const dLo=Math.min(...ref.map(h=>h.mi)),  dHi=Math.max(...ref.map(h=>h.mi));
-  return [...HOTELS]
+  return [...ROSTER]
     .map(h => ({h, s: nrm(h.low,pLo,pHi) + nrm(h.mi,dLo,dHi)}))
     .sort((a,b) => a.s - b.s)
     .map(x => x.h);
@@ -703,9 +745,9 @@ function bestValue(){
 let showOOP = false;   // in-policy only until you ask for the rest
 const MODES = {
   b:{label:'Best value', list:bestValue},
-  d:{label:'Distance',   list:()=>[...HOTELS].sort((a,b)=>a.mi-b.mi)},
-  p:{label:'Price',      list:()=>[...HOTELS].sort((a,b)=>a.low-b.low)},
-  v:{label:'Vibes',      list:()=>[...HOTELS].sort((a,b)=>b.v-a.v)}
+  d:{label:'Distance',   list:()=>[...ROSTER].sort((a,b)=>a.mi-b.mi)},
+  p:{label:'Price',      list:()=>[...ROSTER].sort((a,b)=>a.low-b.low)},
+  v:{label:'Vibes',      list:()=>[...ROSTER].sort((a,b)=>b.v-a.v)}
 };
 const ORDER = ['b','d','p','v'];
 /* the active sort lives in the hash, so a link can be shared already sorted */
@@ -724,7 +766,7 @@ const usd = n => '$' + Math.round(n).toLocaleString('en-US');
    at a dot and pointing at a card produce the same result in both places. */
 let hovered  = null;
 let selected = null;
-let visible  = new Set(HOTELS.map(h=>h.name));   // names passing the active mode's filter
+let visible  = new Set(ROSTER.map(h=>h.name));   // names passing the active mode's filter
 const active = () => hovered || selected;
 const rows   = {};   // hotel name -> its <li>, so the map can reach the list
 
@@ -782,7 +824,7 @@ const marks = {};
 function paint(){
   const idle = tokenHsl('marker-idle'), hot = tokenHsl('marker-active');
   const cur = active();
-  HOTELS.forEach(h=>{
+  ROSTER.forEach(h=>{
     const inPlay = visible.has(h.name);
     const m = marks[h.name];
     // filtered out means off the map entirely — a ghost dot you can't click
@@ -806,7 +848,7 @@ function paint(){
    started on the map — scrolling while the pointer is in the list would yank
    the row out from under the cursor. */
 function syncList(scroll){
-  HOTELS.forEach(h=>{
+  ROSTER.forEach(h=>{
     const li = rows[h.name];
     if (!li) return;
     li.classList.toggle('on',  h.name === hovered);
@@ -819,7 +861,7 @@ function syncList(scroll){
 function hover(name, fromMap){ hovered  = name; paint(); syncList(!!fromMap); }
 function select(name, fromMap){ selected = name; paint(); syncList(!!fromMap); }
 
-HOTELS.forEach(h=>{
+ROSTER.forEach(h=>{
   const m = L.circleMarker([h.lat,h.lon],{radius:9,color:'#fff',weight:2,fillOpacity:1}).addTo(map);
   /* Built lazily: Leaflet accepts a function, so the popup is composed at open
      time and picks up the current nights selection. Binding a string here baked
@@ -889,7 +931,7 @@ function render(){
   legendEl.innerHTML =
     '<span><i class="sw sw--javits"></i>Javits Center</span>' +
     '<span><i class="sw" style="background:'+tokenHsl('marker-idle')+'"></i>Hotel</span>' +
-    (HOTELS.some(x=>x.prov) ? '<span><i class="sw sw--prov"></i>Provisional rate</span>' : '') +
+    (ROSTER.some(x=>x.prov) ? '<span><i class="sw sw--prov"></i>Provisional rate</span>' : '') +
     '<span><i class="sw" style="background:'+tokenHsl('marker-active')+'"></i>Hovered</span>';
 
   listEl.innerHTML = '';
@@ -943,14 +985,14 @@ function render(){
   paint();
   syncList(false);   // a selection survives re-sorting
 
-  const roofs = HOTELS.filter(h=>h.roof).length;
-  const prov  = HOTELS.filter(h=>h.prov).length;
-  const neg   = HOTELS.filter(h=>h.neg).length;
-  const nOop  = HOTELS.filter(oop).length;
+  const roofs = ROSTER.filter(h=>h.roof).length;
+  const prov  = ROSTER.filter(h=>h.prov).length;
+  const neg   = ROSTER.filter(h=>h.neg).length;
+  const nOop  = ROSTER.filter(oop).length;
   footEl.textContent =
-    ordered.length+(showOOP?'':' of '+HOTELS.length)+' hotels · '+
+    ordered.length+(showOOP?'':' of '+ROSTER.length)+' hotels · '+
     nOop+' over $'+VALUE_CAP+'/night'+(showOOP?' (flagged out of policy)':' hidden')+' · '+
-    neg+' negotiated (BCD), '+(HOTELS.length-neg)+' market-only · '+
+    neg+' negotiated (BCD), '+(ROSTER.length-neg)+' market-only · '+
     (mode==='b' ? 'ranked on price and distance together' : 'sorted by '+M.label.toLowerCase())+'. '+
     'Rates are the lowest refundable, non-AAA, standard/deluxe, '+nights+(nights===1?' night. ':' nights. ')+
     'Distances are straight-line; taxi, subway and vibe scores are estimates.'+
@@ -980,7 +1022,7 @@ nightsSel.addEventListener('change', ()=>{
 });
 
 const oopBtn = document.getElementById('oop');
-document.getElementById('oopcnt').textContent = '(' + HOTELS.filter(oop).length + ')';
+document.getElementById('oopcnt').textContent = '(' + ROSTER.filter(oop).length + ')';
 oopBtn.addEventListener('click', ()=>{
   showOOP = !showOOP;
   oopBtn.setAttribute('aria-checked', String(showOOP));
@@ -995,7 +1037,7 @@ verBtn.addEventListener('click',()=>{
 });
 
 setMode(mode,false);
-map.fitBounds(L.latLngBounds([[JAVITS.lat,JAVITS.lon],...HOTELS.map(h=>[h.lat,h.lon])]).pad(0.12));
+map.fitBounds(L.latLngBounds([[JAVITS.lat,JAVITS.lon],...ROSTER.map(h=>[h.lat,h.lon])]).pad(0.12));
 </script>
 </body>
 </html>
