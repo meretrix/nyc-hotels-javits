@@ -435,12 +435,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub" id="sub">Javits Center · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.6</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.7</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v4.7</dt>
+      <dd><b>Show out of policy now defaults to off.</b> The page opens on the twelve properties you can actually book, with the six over the cap one click away rather than mixed in.</dd>
       <dt>v4.6</dt>
       <dd>The detail panel now carries the <b>Out of policy</b> badge under the address, and popups compose on open so they follow the nights control instead of going stale. Dropped <b>Pendry Manhattan West</b> — at $1,526 a night it was distorting the set. <b>EVEN Times Square South’s 3-night minimum</b> is now a red line in its detail panel, and it says so plainly when you have fewer nights selected. Out-of-policy cards no longer show a rate-origin chip; that fact still lives in the popup, but on the card it only diluted the red. And hiding out-of-policy hotels now removes their dots from the map instead of ghosting them.</dd>
       <dt>v4.5</dt>
@@ -521,7 +523,7 @@ footer{
             <option value="4">4</option>
           </select>
         </label>
-        <button class="switch" id="oop" role="switch" aria-checked="true">
+        <button class="switch" id="oop" role="switch" aria-checked="false">
           <span class="track"><span class="knob"></span></span>
           Show out of policy <span class="cnt" id="oopcnt"></span>
         </button>
@@ -748,7 +750,7 @@ function bestValue(){
     .sort((a,b) => a.s - b.s)
     .map(x => x.h);
 }
-let showOOP = true;
+let showOOP = false;   // in-policy only until you ask for the rest
 const MODES = {
   b:{label:'Best value', list:bestValue},
   d:{label:'Distance',   list:()=>[...HOTELS].sort((a,b)=>a.mi-b.mi)},
