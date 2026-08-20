@@ -434,13 +434,15 @@ footer{
 <div class="wrap">
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
-    <span class="sub" id="sub">Javits Center · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.3</button>
+    <span class="sub" id="sub">Javits Center · refundable · lowest rate per hotel</span>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.4</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v5.4</dt>
+      <dd>Removed the dashed distance rings from the map. Every card already states its exact mileage, so the rings were approximating a number printed a few centimetres away — and at eight hotels they crowded a map that reads perfectly well without them.</dd>
       <dt>v5.3</dt>
       <dd>Dropped <b>Moxy NYC Downtown</b> from the curated view. Eight hotels on the plain URL — and with the furthest one gone, everything on the shared list now sits inside 2.7 miles.</dd>
       <dt>v5.2</dt>
@@ -786,12 +788,6 @@ const darkMq = window.matchMedia('(prefers-color-scheme: dark)');
 const tiles = L.tileLayer(TILES[darkMq.matches ? 'dark' : 'light'],{
   attribution:'&copy; OpenStreetMap &copy; CARTO', maxZoom:19
 }).addTo(map);
-
-[0.5,1,2,3].forEach(mi=>{
-  L.circle([JAVITS.lat,JAVITS.lon],{radius:mi*1609.34,color:'#7c8798',weight:1,
-    opacity:.5,fill:false,dashArray:'4 6'}).addTo(map)
-   .bindTooltip(mi+' mi',{direction:'top'});
-});
 
 /* Javits reads as a place, not another data point — a solid cube carrying a
    convention-centre glyph, sized well above the hotel dots so the anchor is
