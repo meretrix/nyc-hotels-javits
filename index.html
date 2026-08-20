@@ -201,9 +201,33 @@ aside{background:hsl(var(--surface-background));border-left:1px solid hsl(var(--
   border-bottom:1px solid hsl(var(--border-subtle));
   padding:14px 18px;display:flex;flex-direction:column;gap:10px;align-items:stretch;
 }
+.ctl-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.nights{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.nights-label{
+  font-family:var(--font-inter);font-size:.625rem;letter-spacing:.1em;
+  text-transform:uppercase;color:hsl(var(--content-tertiary));font-weight:600;
+}
+#nights{
+  appearance:none;-webkit-appearance:none;
+  font-family:var(--font-inter);font-size:.75rem;font-weight:600;line-height:1;
+  font-variant-numeric:tabular-nums;
+  color:hsl(var(--content-primary));
+  background:hsl(var(--surface-midground));
+  border:1px solid hsl(var(--border-medium));
+  border-radius:calc(var(--radius) - 2px);
+  padding:6px 24px 6px 10px;cursor:pointer;
+  /* chevron drawn inline so nothing is fetched */
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),
+                   linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-position:calc(100% - 14px) 52%, calc(100% - 9px) 52%;
+  background-size:5px 5px, 5px 5px;
+  background-repeat:no-repeat;
+}
+#nights:focus-visible{outline:2px solid hsl(var(--surface-action-strong));outline-offset:1px}
+
 /* out-of-policy toggle */
 .switch{
-  display:inline-flex;align-items:center;gap:8px;align-self:flex-start;
+  display:inline-flex;align-items:center;gap:8px;
   background:none;border:0;padding:0;cursor:pointer;
   font-family:var(--font-inter);font-size:.75rem;font-weight:600;
   color:hsl(var(--content-secondary));transition:color .18s ease;
@@ -316,8 +340,6 @@ li:hover::after,li.on::after{opacity:1;right:11px}
 .leg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .leg svg{width:15px;height:15px;flex:none;stroke:currentColor;fill:none;
   stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
-.leg.best{color:hsl(var(--content-primary));font-weight:600}
-.leg.best svg{opacity:1}
 .lines{display:inline-flex;gap:3px;margin-left:1px}
 .bullet{
   width:15px;height:15px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
@@ -411,13 +433,15 @@ footer{
 <div class="wrap">
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
-    <span class="sub">Javits Center · 4 nights · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.4</button>
+    <span class="sub" id="sub">Javits Center · refundable · straight-line distance</span>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.5</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v4.5</dt>
+      <dd>Added a <b>nights</b> dropdown, 1 to 4, defaulting to <b>3</b>; the policy toggle moved to the right of the same row. Totals recompute from the nightly rate. Ranking and policy are both per-night, so changing the stay length moves the money and nothing else — no reordering, nothing crossing in or out of policy. Also removed the bolding on the faster of walk-versus-transit; all commute figures now share one weight.</dd>
       <dt>v4.4</dt>
       <dd>Demoted the pink <b>Rooftop</b> badge to the detail popup. Two badges in the red-pink family were competing, and policy is the more consequential of the two — red now means one thing on a card. <b>Out-of-policy prices are set in red</b> as well, so the breach is carried by the figures themselves and not only by a chip.</dd>
       <dt>v4.3</dt>
@@ -484,10 +508,21 @@ footer{
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16l-8 8z"/><path d="M12 12v7"/><path d="M8.4 20h7.2"/></svg>
           Vibes</button>
       </div>
-      <button class="switch" id="oop" role="switch" aria-checked="true">
-        <span class="track"><span class="knob"></span></span>
-        Show out of policy <span class="cnt" id="oopcnt"></span>
-      </button>
+      <div class="ctl-row">
+        <label class="nights">
+          <span class="nights-label">Nights</span>
+          <select id="nights">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+          </select>
+        </label>
+        <button class="switch" id="oop" role="switch" aria-checked="true">
+          <span class="track"><span class="knob"></span></span>
+          Show out of policy <span class="cnt" id="oopcnt"></span>
+        </button>
+      </div>
     </div>
     <ol id="list"></ol>
   </aside>
@@ -691,6 +726,13 @@ const reviewLink = h =>
    distance together. Both are min-max normalised across the surviving pool so
    neither dominates just because dollars are bigger numbers than miles; the
    two normalised penalties are summed, lowest total wins. */
+/* Every pulled 4-night total is exactly 4x its nightly rate, so the stay
+   total can be derived. Policy (per-night) and the value score (per-night +
+   distance) are both nights-independent, so changing nights never reorders
+   the list or moves a hotel in or out of policy — only the totals move. */
+let nights = 3;
+const stayTotal = h => h.low * nights;
+
 const VALUE_CAP = 560;                       // policy ceiling, USD per night
 const oop = h => h.low > VALUE_CAP;          // out of policy
 const nrm = (v,lo,hi) => hi > lo ? (v-lo)/(hi-lo) : 0;
@@ -714,7 +756,7 @@ let showOOP = true;
 const MODES = {
   b:{label:'Best value', list:bestValue},
   d:{label:'Distance',   list:()=>[...HOTELS].sort((a,b)=>a.mi-b.mi)},
-  p:{label:'Price',      list:()=>[...HOTELS].sort((a,b)=>a.total-b.total)},
+  p:{label:'Price',      list:()=>[...HOTELS].sort((a,b)=>a.low-b.low)},
   v:{label:'Vibes',      list:()=>[...HOTELS].sort((a,b)=>b.v-a.v)}
 };
 const ORDER = ['b','d','p','v'];
@@ -852,7 +894,7 @@ HOTELS.forEach(h=>{
 
     '<hr class="pop-hr">'+
     '<div class="pop-label">Price'+(h.prov?' — provisional':'')+'</div>'+
-    '<div class="pop-row"><span>4 nights</span><span>'+(h.prov?'~':'')+usd(h.total)+'</span></div>'+
+    '<div class="pop-row"><span>'+nights+(nights===1?' night':' nights')+'</span><span>'+(h.prov?'~':'')+usd(stayTotal(h))+'</span></div>'+
     '<div class="pop-row"><span>Per night</span><span'+(oop(h)?' style="color:hsl(var(--content-danger))"':'')+'>'+
       (h.prov?'~':'')+usd(h.low)+'</span></div>'+
     (h.prov ? '' : '<div class="pop-row"><span>Room type</span><span>'+h.type+'</span></div>')+
@@ -892,7 +934,6 @@ function render(){
   Object.keys(rows).forEach(k => delete rows[k]);  // <li>s are rebuilt below
   ordered.forEach((h,i)=>{
     // the train only earns emphasis when it actually beats walking
-    const trainWins = h.train.min < h.walk;
     const li = document.createElement('li');
     li.innerHTML =
       '<span class="rank">'+(i+1)+'</span>'+
@@ -901,9 +942,9 @@ function render(){
         // out-of-policy badge, and policy is the more consequential signal
         '<span class="nm">'+h.name+'</span>'+
         '<span class="transit">'+
-          '<span class="leg'+(trainWins?'':' best')+'">'+svg('walk')+h.walk+' min</span>'+
+          '<span class="leg">'+svg('walk')+h.walk+' min</span>'+
           '<span class="leg">'+svg('taxi')+h.taxi+' min</span>'+
-          '<span class="leg'+(trainWins?' best':'')+'">'+svg('train')+h.train.min+' min'+bullets(h.train.lines)+'</span>'+
+          '<span class="leg">'+svg('train')+h.train.min+' min'+bullets(h.train.lines)+'</span>'+
         '</span>'+
         // routing detail lives in the popup; the card keeps only the times
         '<span class="meta">'+
@@ -918,7 +959,7 @@ function render(){
         '</span>'+
       '</span>'+
       '<span class="rt">'+
-        '<span class="tot'+(h.prov?' prov':'')+(oop(h)?' oop':'')+'">'+(h.prov?'~':'')+usd(h.total)+'</span>'+
+        '<span class="tot'+(h.prov?' prov':'')+(oop(h)?' oop':'')+'">'+(h.prov?'~':'')+usd(stayTotal(h))+'</span>'+
         '<span class="ngt'+(h.prov?' prov':'')+(oop(h)?' oop':'')+'">'+(h.prov?'~':'')+usd(h.low)+'/night</span>'+
         '<span class="mi">'+h.mi.toFixed(2)+' mi</span>'+
         // rate provenance belongs with the figures it qualifies
@@ -946,7 +987,7 @@ function render(){
     nOop+' over $'+VALUE_CAP+'/night'+(showOOP?' (flagged out of policy)':' hidden')+' · '+
     neg+' negotiated (BCD), '+(HOTELS.length-neg)+' market-only · '+
     (mode==='b' ? 'ranked on price and distance together' : 'sorted by '+M.label.toLowerCase())+'. '+
-    'Rates are the lowest refundable, non-AAA, standard/deluxe, 4 nights. '+
+    'Rates are the lowest refundable, non-AAA, standard/deluxe, '+nights+(nights===1?' night. ':' nights. ')+
     'Distances are straight-line; taxi, subway and vibe scores are estimates.'+
     (prov ? ' '+prov+' rates are provisional and have not been pulled yet.' : '');
 }
@@ -966,6 +1007,13 @@ ORDER.forEach(k=>{
 window.addEventListener('hashchange',()=>setMode(fromHash(),false));
 
 /* ---------- changelog ---------- */
+const nightsSel = document.getElementById('nights');
+nightsSel.value = String(nights);
+nightsSel.addEventListener('change', ()=>{
+  nights = Math.min(4, Math.max(1, parseInt(nightsSel.value,10) || 3));
+  render();
+});
+
 const oopBtn = document.getElementById('oop');
 document.getElementById('oopcnt').textContent = '(' + HOTELS.filter(oop).length + ')';
 oopBtn.addEventListener('click', ()=>{
