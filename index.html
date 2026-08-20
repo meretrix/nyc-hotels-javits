@@ -152,6 +152,7 @@ h1{font-size:1.25rem;line-height:1.5rem;margin:0;letter-spacing:-.025em;font-wei
 .sw{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
 .sw--javits{width:12px;height:12px;border-radius:3px;background:hsl(var(--javits))}
 .sw--prov{background:none;border:1.5px dashed hsl(var(--marker-idle))}
+.sw--out{width:8px;height:8px;background:hsl(var(--marker-idle)/.3)}
 
 /* ---------- changelog ---------- */
 .changelog{
@@ -206,7 +207,7 @@ aside{background:hsl(var(--surface-background));border-left:1px solid hsl(var(--
 }
 .seg-ind{
   position:absolute;top:3px;bottom:3px;left:3px;
-  width:calc((100% - 6px)/3);
+  width:calc((100% - 6px)/4);
   background:hsl(var(--surface-midground));
   border-radius:calc(var(--radius) - 2px);
   box-shadow:var(--shadow-raise);
@@ -215,13 +216,14 @@ aside{background:hsl(var(--surface-background));border-left:1px solid hsl(var(--
 }
 .seg button{
   position:relative;z-index:1;appearance:none;background:none;border:0;cursor:pointer;
-  display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  font-family:var(--font-inter);font-weight:600;font-size:.8125rem;letter-spacing:.01em;
-  padding:11px 6px;border-radius:calc(var(--radius) - 2px);
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  white-space:nowrap;
+  font-family:var(--font-inter);font-weight:600;font-size:.75rem;letter-spacing:0;
+  padding:11px 4px;border-radius:calc(var(--radius) - 2px);
   color:hsl(var(--content-secondary));transition:color .18s ease;
 }
 .seg button svg{
-  width:16px;height:16px;flex:none;fill:none;stroke:currentColor;
+  width:15px;height:15px;flex:none;fill:none;stroke:currentColor;
   stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
   opacity:.7;transition:opacity .18s ease;
 }
@@ -379,12 +381,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub">Javits Center · 4 nights · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.1</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.2</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v4.2</dt>
+      <dd>New <b>Best value</b> tab, now the default. It drops anything over <b>$560 a night</b>, then ranks what is left on <b>price and distance together</b> — both min-max normalised across the surviving pool so neither dominates, penalties summed, lowest wins. Excluded properties fade on the map rather than vanishing, so you can still see what the cap removed.</dd>
       <dt>v4.1</dt>
       <dd>Rate provenance now shows on every card, not just the negotiated ones — the eight market-only properties carry a neutral grey <b>Market</b> chip. Absence of a badge read as missing data rather than as a fact; stating both makes the 11-versus-8 split legible at a glance.</dd>
       <dt>v4.0</dt>
@@ -430,10 +434,12 @@ footer{
 
   <aside>
     <div class="ctl">
-      <span class="ctl-label">Sort</span>
       <div class="seg" role="tablist" aria-label="Sort hotels by">
         <div class="seg-ind" id="ind"></div>
-        <button role="tab" id="m-d" aria-selected="true">
+        <button role="tab" id="m-b" aria-selected="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2l2.15 5.9 5.9 2.15-5.9 2.15L12 19.3l-2.15-5.9-5.9-2.15 5.9-2.15z"/></svg>
+          Best value</button>
+        <button role="tab" id="m-d" aria-selected="false">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.5s6.8-5.6 6.8-11a6.8 6.8 0 1 0-13.6 0c0 5.4 6.8 11 6.8 11z"/><circle cx="12" cy="10.3" r="2.5"/></svg>
           Distance</button>
         <button role="tab" id="m-p" aria-selected="false">
@@ -642,16 +648,33 @@ const reviewLink = h =>
    a link once that lands. */
 
 /* ---------- sort modes ---------- */
+/* Best value: drop anything over the nightly cap, then rank on price AND
+   distance together. Both are min-max normalised across the surviving pool so
+   neither dominates just because dollars are bigger numbers than miles; the
+   two normalised penalties are summed, lowest total wins. */
+const VALUE_CAP = 560;                       // max nightly rate, USD
+const nrm = (v,lo,hi) => hi > lo ? (v-lo)/(hi-lo) : 0;
+function bestValue(){
+  const pool = HOTELS.filter(h => h.low <= VALUE_CAP);
+  if (!pool.length) return [];
+  const pLo=Math.min(...pool.map(h=>h.low)), pHi=Math.max(...pool.map(h=>h.low));
+  const dLo=Math.min(...pool.map(h=>h.mi)),  dHi=Math.max(...pool.map(h=>h.mi));
+  return pool
+    .map(h => ({h, s: nrm(h.low,pLo,pHi) + nrm(h.mi,dLo,dHi)}))
+    .sort((a,b) => a.s - b.s)
+    .map(x => x.h);
+}
 const MODES = {
-  d:{label:'Distance', sort:(a,b)=>a.mi-b.mi},
-  p:{label:'Price',    sort:(a,b)=>a.total-b.total},
-  v:{label:'Vibes',    sort:(a,b)=>b.v-a.v}
+  b:{label:'Best value', list:bestValue, capped:true},
+  d:{label:'Distance',   list:()=>[...HOTELS].sort((a,b)=>a.mi-b.mi)},
+  p:{label:'Price',      list:()=>[...HOTELS].sort((a,b)=>a.total-b.total)},
+  v:{label:'Vibes',      list:()=>[...HOTELS].sort((a,b)=>b.v-a.v)}
 };
-const ORDER = ['d','p','v'];
+const ORDER = ['b','d','p','v'];
 /* the active sort lives in the hash, so a link can be shared already sorted */
 const fromHash = () => {
   const k = location.hash.replace('#','');
-  return ORDER.includes(k) ? k : 'd';
+  return ORDER.includes(k) ? k : 'b';   // best value is the default view
 };
 let mode = fromHash();
 
@@ -664,6 +687,7 @@ const usd = n => '$' + Math.round(n).toLocaleString('en-US');
    at a dot and pointing at a card produce the same result in both places. */
 let hovered  = null;
 let selected = null;
+let visible  = new Set(HOTELS.map(h=>h.name));   // names passing the active mode's filter
 const active = () => hovered || selected;
 const rows   = {};   // hotel name -> its <li>, so the map can reach the list
 
@@ -722,12 +746,14 @@ function paint(){
   const idle = tokenHsl('marker-idle'), hot = tokenHsl('marker-active');
   const cur = active();
   HOTELS.forEach(h=>{
-    const on = h.name === cur;
+    const inPlay = visible.has(h.name);
+    const on = inPlay && h.name === cur;
     marks[h.name].setStyle({
       fillColor: on ? hot : idle,
-      radius: on ? 14 : 9,
-      fillOpacity: 1,
-      dashArray: h.prov ? '2 2' : null,   // dashed ring = rate not yet pulled
+      radius: on ? 14 : (inPlay ? 9 : 6),
+      fillOpacity: inPlay ? 1 : 0.25,     // filtered out, but still shown as context
+      opacity: inPlay ? 1 : 0.3,
+      dashArray: h.prov ? '2 2' : null,
       weight: on ? 3 : (h.prov ? 2.5 : 2)
     });
     if (on) marks[h.name].bringToFront();
@@ -803,11 +829,13 @@ const footEl   = document.getElementById('foot');
 
 function render(){
   const M = MODES[mode];
-  const ordered = [...HOTELS].sort(M.sort);
+  const ordered = M.list();
+  visible = new Set(ordered.map(h=>h.name));
 
   legendEl.innerHTML =
     '<span><i class="sw sw--javits"></i>Javits Center</span>' +
     '<span><i class="sw" style="background:'+tokenHsl('marker-idle')+'"></i>Hotel</span>' +
+    (M.capped ? '<span><i class="sw sw--out"></i>over $'+VALUE_CAP+'/night</span>' : '') +
     (HOTELS.some(x=>x.prov) ? '<span><i class="sw sw--prov"></i>Provisional rate</span>' : '') +
     '<span><i class="sw" style="background:'+tokenHsl('marker-active')+'"></i>Hovered</span>';
 
@@ -863,8 +891,11 @@ function render(){
   const prov  = HOTELS.filter(h=>h.prov).length;
   const neg   = HOTELS.filter(h=>h.neg).length;
   footEl.textContent =
-    HOTELS.length+' hotels · '+roofs+' with a rooftop bar or lounge · '+neg+' negotiated (BCD), '+(HOTELS.length-neg)+' market-only · sorted by '+
-    M.label.toLowerCase()+' — rates are the lowest refundable, non-AAA, standard/deluxe, 4 nights. '+
+    (M.capped
+      ? ordered.length+' of '+HOTELS.length+' hotels at or under $'+VALUE_CAP+'/night, ranked on price and distance together — '+
+        (HOTELS.length-ordered.length)+' pricier properties are faded on the map, not in the list. '
+      : HOTELS.length+' hotels · '+roofs+' with a rooftop bar or lounge · '+neg+' negotiated (BCD), '+(HOTELS.length-neg)+' market-only · sorted by '+M.label.toLowerCase()+'. ')+
+    'Rates are the lowest refundable, non-AAA, standard/deluxe, 4 nights. '+
     'Distances are straight-line; taxi, subway and vibe scores are estimates.'+
     (prov ? ' '+prov+' rates are provisional and have not been pulled yet.' : '');
 }
