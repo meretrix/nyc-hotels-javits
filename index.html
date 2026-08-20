@@ -435,12 +435,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub" id="sub">Javits Center · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.2</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.3</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v5.3</dt>
+      <dd>Dropped <b>Moxy NYC Downtown</b> from the curated view. Eight hotels on the plain URL — and with the furthest one gone, everything on the shared list now sits inside 2.7 miles.</dd>
       <dt>v5.2</dt>
       <dd>Dropped <b>Sheraton Tribeca</b> from the curated view. Nine hotels on the plain URL; still reachable on <b>?all=1</b>.</dd>
       <dt>v5.1</dt>
@@ -651,7 +653,7 @@ const HOTELS = [
  train:{min:28, lines:["F"], via:"Delancey\u2013Essex \u2192 34 St\u2013Herald Sq \u00b7 5 stops"},
  roof:null, vibe:{cool:3, arch:3, scene:3}},
 
-{name:"Moxy NYC Downtown", share:true, addr:"26 Ann St", lat:40.7108496, lon:-74.0080046,
+{name:"Moxy NYC Downtown", addr:"26 Ann St", lat:40.7108496, lon:-74.0080046,
  low:473.85, total:1895.40, hiTotal:2075.40, rooms:"10+", type:"Standard",
  neg:false, rateType:"Stay 3 and Save (non-member)",
  note:"No negotiated rate returned; accessible available", mi:3.30, walk:82, taxi:25,
