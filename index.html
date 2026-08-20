@@ -139,6 +139,11 @@ h1{font-size:1.25rem;line-height:1.5rem;margin:0;letter-spacing:-.025em;font-wei
   background:hsl(var(--surface-action-strong)/.12);
   color:hsl(var(--content-action));
 }
+/* market-only: neutral, not a warning — it's provenance, not a defect */
+.badge--mkt{
+  background:hsl(var(--content-secondary)/.12);
+  color:hsl(var(--content-secondary));
+}
 @media (prefers-color-scheme:dark){.badge--roof{color:hsl(var(--accent-pink-300))}}
 
 .legend{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap;
@@ -374,12 +379,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub">Javits Center · 4 nights · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.0</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.1</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v4.1</dt>
+      <dd>Rate provenance now shows on every card, not just the negotiated ones — the eight market-only properties carry a neutral grey <b>Market</b> chip. Absence of a badge read as missing data rather than as a fact; stating both makes the 11-versus-8 split legible at a glance.</dd>
       <dt>v4.0</dt>
       <dd><b>All 19 rates are now real</b> — the six provisional estimates were replaced with pulled figures, and every dashed treatment is gone. Added the rate’s provenance: <b>11 of 19 returned a negotiated BCD rate</b>, flagged on the card and named in the popup. The other eight came back market-only.</dd>
       <dt>v3.9</dt>
@@ -838,7 +845,7 @@ function render(){
         '<span class="ngt'+(h.prov?' prov':'')+'">'+(h.prov?'~':'')+usd(h.low)+'/night</span>'+
         '<span class="mi">'+h.mi.toFixed(2)+' mi</span>'+
         // rate provenance belongs with the figures it qualifies
-        (h.neg ? '<span class="badge badge--neg">Negotiated</span>' : '')+
+        '<span class="badge badge--'+(h.neg?'neg">Negotiated':'mkt">Market')+'</span>'+
         (h.prov ? '<span class="badge badge--prov">Est. rate</span>' : '')+
       '</span>';
 
@@ -856,7 +863,7 @@ function render(){
   const prov  = HOTELS.filter(h=>h.prov).length;
   const neg   = HOTELS.filter(h=>h.neg).length;
   footEl.textContent =
-    HOTELS.length+' hotels · '+roofs+' with a rooftop bar or lounge · '+neg+' returned a negotiated (BCD) rate · sorted by '+
+    HOTELS.length+' hotels · '+roofs+' with a rooftop bar or lounge · '+neg+' negotiated (BCD), '+(HOTELS.length-neg)+' market-only · sorted by '+
     M.label.toLowerCase()+' — rates are the lowest refundable, non-AAA, standard/deluxe, 4 nights. '+
     'Distances are straight-line; taxi, subway and vibe scores are estimates.'+
     (prov ? ' '+prov+' rates are provisional and have not been pulled yet.' : '');
