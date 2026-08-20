@@ -435,12 +435,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub" id="sub">Javits Center · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.9</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.0</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v5.0</dt>
+      <dd>The published page is now a <b>curated ten</b> — eight in policy plus The Standard and The High Line Hotel. It is generated from a fuller local master rather than maintained separately, so the properties left out are absent from the published file entirely rather than hidden inside it.</dd>
       <dt>v4.9</dt>
       <dd>Removed <b>Courtyard Midtown West</b>. Fifteen hotels, ten in policy — and with it gone, every remaining property inside the half-mile ring is one you can actually book.</dd>
       <dt>v4.8</dt>
@@ -577,13 +579,6 @@ const HOTELS = [
  train:{min:18, lines:["A","C","E"], via:"23 St \u2192 34 St\u2013Penn \u00b7 1 stop"},
  roof:null, vibe:{cool:4, arch:5, scene:3}},
 
-{name:"Courtyard Manhattan/Times Sq", addr:"114 W 40th St", lat:40.7536218, lon:-73.9861665,
- low:395.00, total:1580.00, hiTotal:1856.00, rooms:"10+", type:"Guest room",
- neg:false, rateType:"Long Term Stay (public)",
- note:"Long Term Stay / Member Retail; no negotiated rate returned", mi:0.90, walk:22, taxi:10,
- train:{min:12, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
- roof:null, vibe:{cool:1, arch:1, scene:2}},
-
 {name:"The Maritime Hotel", addr:"363 W 16th St", lat:40.7424358, lon:-74.0038670,
  low:532.31, total:2129.24, hiTotal:2505.00, rooms:"10+", type:"Standard/Accessible",
  neg:true, rateType:"BCD Travel / SMERATE",
@@ -597,20 +592,6 @@ const HOTELS = [
  note:"No negotiated rate returned; deluxe + premium rooms", mi:1.25, walk:31, taxi:12,
  train:{min:21, lines:["A","C","E"], via:"14 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
  roof:"Le Bain + Top of the Standard", vibe:{cool:5, arch:5, scene:5}},
-
-{name:"Gansevoort Meatpacking", addr:"18 Ninth Ave", lat:40.7398769, lon:-74.0057111,
- low:858.60, total:3434.40, hiTotal:3866.40, rooms:"10+", type:"Superior room",
- neg:true, rateType:"BCD BCP",
- note:"All returned rates are BCD BCP; superior + deluxe rooms", mi:1.29, walk:32, taxi:12,
- train:{min:21, lines:["A","C","E"], via:"14 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
- roof:"Rooftop pool + bar", vibe:{cool:3, arch:3, scene:4}},
-
-{name:"The Manner (Hyatt)", addr:"151 Thompson St", lat:40.7270663, lon:-74.0010162,
- low:858.25, total:3433.00, hiTotal:4851.00, rooms:"10+", type:"Standard",
- neg:true, rateType:"BCD Travel",
- note:"Negotiated ties market ($858.25); standard + deluxe", mi:2.16, walk:54, taxi:18,
- train:{min:24, lines:["C","E"], via:"Spring St \u2192 34 St\u2013Penn \u00b7 4 stops"},
- roof:"Rooftop terrace bar", vibe:{cool:5, arch:4, scene:4}},
 
 {name:"PUBLIC", addr:"215 Chrystie St", lat:40.7230653, lon:-73.9920127,
  low:526.50, total:2106.00, hiTotal:2691.00, rooms:"10+", type:"Standard",
@@ -626,26 +607,12 @@ const HOTELS = [
  train:{min:24, lines:["A","C","E"], via:"Canal St \u2192 34 St\u2013Penn \u00b7 3 stops"},
  roof:null, vibe:{cool:1, arch:1, scene:1}},
 
-{name:"Sixty LES", addr:"189 Allen St", lat:40.7218303, lon:-73.9892736,
- low:403.33, total:1613.32, hiTotal:1988.88, rooms:"10+", type:"Studio room",
- neg:true, rateType:"BCD Travel Program",
- note:"BCD ties the public Plan Ahead rate; studio & junior suite", mi:2.61, walk:65, taxi:20,
- train:{min:28, lines:["F"], via:"2 Av \u2192 34 St\u2013Herald Sq \u00b7 4 stops"},
- roof:"Rooftop pool + bar", vibe:{cool:4, arch:3, scene:4}},
-
 {name:"citizenM New York Bowery", addr:"189 Bowery", lat:40.7205955, lon:-73.9934478,
  low:450.25, total:1801.00, hiTotal:1962.00, rooms:"10+", type:"Guest room",
  neg:false, rateType:"Stay and Save (market)",
  note:"No negotiated rate returned; accessible, high-floor, premium-view", mi:2.65, walk:66, taxi:20,
  train:{min:28, lines:["F"], via:"2 Av \u2192 34 St\u2013Herald Sq \u00b7 4 stops"},
  roof:"cloudM rooftop bar", vibe:{cool:3, arch:3, scene:3}},
-
-{name:"Merchant LES Hotel", addr:"139 Orchard St", lat:40.7199657, lon:-73.9893970,
- low:594.00, total:2376.00, hiTotal:3176.00, rooms:"7", type:"Standard",
- neg:false, rateType:"Best Available Rate (market)",
- note:"No negotiated rate returned", mi:2.74, walk:68, taxi:21,
- train:{min:28, lines:["F"], via:"Delancey\u2013Essex \u2192 34 St\u2013Herald Sq \u00b7 5 stops"},
- roof:null, vibe:{cool:3, arch:3, scene:3}},
 
 {name:"Moxy NYC Downtown", addr:"26 Ann St", lat:40.7108496, lon:-74.0080046,
  low:473.85, total:1895.40, hiTotal:2075.40, rooms:"10+", type:"Standard",
