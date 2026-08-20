@@ -160,7 +160,6 @@ h1{font-size:1.25rem;line-height:1.5rem;margin:0;letter-spacing:-.025em;font-wei
 .sw{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
 .sw--javits{width:12px;height:12px;border-radius:3px;background:hsl(var(--javits))}
 .sw--prov{background:none;border:1.5px dashed hsl(var(--marker-idle))}
-.sw--out{width:8px;height:8px;background:hsl(var(--marker-idle)/.3)}
 
 /* ---------- changelog ---------- */
 .changelog{
@@ -204,8 +203,10 @@ aside{background:hsl(var(--surface-background));border-left:1px solid hsl(var(--
 .ctl-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .nights{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
 .nights-label{
-  font-family:var(--font-inter);font-size:.625rem;letter-spacing:.1em;
-  text-transform:uppercase;color:hsl(var(--content-tertiary));font-weight:600;
+  /* same treatment as the 'Show out of policy' label so the two controls read
+     as siblings rather than as a heading and a control */
+  font-family:var(--font-inter);font-size:.75rem;font-weight:600;
+  color:hsl(var(--content-primary));
 }
 #nights{
   appearance:none;-webkit-appearance:none;
@@ -215,11 +216,11 @@ aside{background:hsl(var(--surface-background));border-left:1px solid hsl(var(--
   background:hsl(var(--surface-midground));
   border:1px solid hsl(var(--border-medium));
   border-radius:calc(var(--radius) - 2px);
-  padding:6px 24px 6px 10px;cursor:pointer;
+  padding:7px 28px 7px 14px;min-width:74px;cursor:pointer;
   /* chevron drawn inline so nothing is fetched */
   background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),
                    linear-gradient(135deg,currentColor 50%,transparent 50%);
-  background-position:calc(100% - 14px) 52%, calc(100% - 9px) 52%;
+  background-position:calc(100% - 16px) 52%, calc(100% - 11px) 52%;
   background-size:5px 5px, 5px 5px;
   background-repeat:no-repeat;
 }
@@ -413,7 +414,7 @@ footer{
   font-family:var(--font-inter);font-size:.75rem;
   color:hsl(var(--content-secondary));margin-top:3px;margin-bottom:11px;
 }
-.pop-tags{margin-top:-5px;margin-bottom:11px}
+.pop-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:-5px;margin-bottom:11px}
 .badge--roof svg{width:10px;height:10px;fill:none;stroke:currentColor;
   stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .pop-label{
@@ -434,12 +435,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub" id="sub">Javits Center · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.5</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.6</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v4.6</dt>
+      <dd>The detail panel now carries the <b>Out of policy</b> badge under the address, and popups compose on open so they follow the nights control instead of going stale. Dropped <b>Pendry Manhattan West</b> — at $1,526 a night it was distorting the set. <b>EVEN Times Square South’s 3-night minimum</b> is now a red line in its detail panel, and it says so plainly when you have fewer nights selected. Out-of-policy cards no longer show a rate-origin chip; that fact still lives in the popup, but on the card it only diluted the red. And hiding out-of-policy hotels now removes their dots from the map instead of ghosting them.</dd>
       <dt>v4.5</dt>
       <dd>Added a <b>nights</b> dropdown, 1 to 4, defaulting to <b>3</b>; the policy toggle moved to the right of the same row. Totals recompute from the nightly rate. Ranking and policy are both per-night, so changing the stay length moves the money and nothing else — no reordering, nothing crossing in or out of policy. Also removed the bolding on the faster of walk-versus-transit; all commute figures now share one weight.</dd>
       <dt>v4.4</dt>
@@ -547,13 +550,6 @@ const HOTELS = [
  train:{min:9, lines:["7"], via:"34 St\u2013Hudson Yards \u00b7 1 stop"},
  roof:null, vibe:{cool:1, arch:2, scene:1}},
 
-{name:"Pendry Manhattan West", addr:"438 W 33rd St", lat:40.7531622, lon:-73.9984906,
- low:1525.50, total:6102.00, hiTotal:7472.00, rooms:"10+", type:"Deluxe room",
- neg:true, rateType:"BCD Travel (WiFi incl.)",
- note:"All returned rates are BCD; deluxe + studio rooms", mi:0.41, walk:10, taxi:6,
- train:{min:11, lines:["7"], via:"34 St\u2013Hudson Yards \u00b7 1 stop"},
- roof:null, vibe:{cool:4, arch:4, scene:3}},
-
 {name:"Arlo Midtown", addr:"351 W 39th St", lat:40.7560115, lon:-73.9925721,
  low:391.25, total:1565.00, hiTotal:2785.00, rooms:"10+", type:"King room",
  neg:true, rateType:"BCD Travel Hotel Program",
@@ -570,8 +566,8 @@ const HOTELS = [
 
 {name:"EVEN Hotel Times Square South", addr:"321 W 35th St", lat:40.7534756, lon:-73.9938758,
  low:440.82, total:1763.28, hiTotal:2033.12, rooms:"10+", type:"Standard guest room",
- neg:true, rateType:"BCD Travel / TMC 7%",
- note:"All returned rates are negotiated; some rates carry a 3-night minimum", mi:0.55, walk:14, taxi:7,
+ neg:true, rateType:"BCD Travel / TMC 7%", minNights:3,
+ note:"All returned rates are negotiated", mi:0.55, walk:14, taxi:7,
  train:{min:15, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
  roof:null, vibe:{cool:2, arch:2, scene:1}},
 
@@ -836,16 +832,21 @@ function paint(){
   const cur = active();
   HOTELS.forEach(h=>{
     const inPlay = visible.has(h.name);
-    const on = inPlay && h.name === cur;
-    marks[h.name].setStyle({
+    const m = marks[h.name];
+    // filtered out means off the map entirely — a ghost dot you can't click
+    // or identify is clutter, not context
+    if (!inPlay){ if (map.hasLayer(m)) map.removeLayer(m); return; }
+    if (!map.hasLayer(m)) m.addTo(map);
+    const on = h.name === cur;
+    m.setStyle({
       fillColor: on ? hot : idle,
-      radius: on ? 14 : (inPlay ? 9 : 6),
-      fillOpacity: inPlay ? 1 : 0.25,     // filtered out, but still shown as context
-      opacity: inPlay ? 1 : 0.3,
+      radius: on ? 14 : 9,
+      fillOpacity: 1,
+      opacity: 1,
       dashArray: h.prov ? '2 2' : null,
       weight: on ? 3 : (h.prov ? 2.5 : 2)
     });
-    if (on) marks[h.name].bringToFront();
+    if (on) m.bringToFront();
   });
 }
 
@@ -868,12 +869,15 @@ function select(name, fromMap){ selected = name; paint(); syncList(!!fromMap); }
 
 HOTELS.forEach(h=>{
   const m = L.circleMarker([h.lat,h.lon],{radius:9,color:'#fff',weight:2,fillOpacity:1}).addTo(map);
-  /* Blocks run price → commute → ratings: what it costs, how you get there,
-     what it's like. Address sits with the name, as identity not commute data. */
-  m.bindPopup(
-    '<div class="pop-head"><b>'+h.name+'</b></div>'+
+  /* Built lazily: Leaflet accepts a function, so the popup is composed at open
+     time and picks up the current nights selection. Binding a string here baked
+     the stay length in at init and went stale the moment the control changed. */
+  m.bindPopup(() => '<div class="pop-head"><b>'+h.name+'</b></div>'+
     '<div class="pop-addr">'+h.addr+'</div>'+
-    (h.roof ? '<div class="pop-tags"><span class="badge badge--roof">'+svg('roof')+'Rooftop</span></div>' : '')+
+    ((oop(h)||h.roof) ? '<div class="pop-tags">'+
+      (oop(h) ? '<span class="badge badge--oop">Out of policy</span>' : '')+
+      (h.roof ? '<span class="badge badge--roof">'+svg('roof')+'Rooftop</span>' : '')+
+    '</div>' : '')+
 
     '<div class="pop-label">Commute to Javits</div>'+
     '<div class="pop-row"><span>Distance</span><span>'+h.mi.toFixed(2)+' mi</span></div>'+
@@ -900,9 +904,16 @@ HOTELS.forEach(h=>{
     (h.prov ? '' : '<div class="pop-row"><span>Room type</span><span>'+h.type+'</span></div>')+
     '<div class="pop-row"><span>Rate</span><span>'+(h.neg?'Negotiated':'Market')+'</span></div>'+
     (oop(h) ? '<div class="pop-row"><span>Policy</span><span style="color:hsl(var(--content-danger))">Over $'+VALUE_CAP+'/night</span></div>' : '')+
+    (h.minNights ? '<div class="pop-row"><span>Minimum stay</span>'+
+        '<span style="color:hsl(var(--content-danger))">'+h.minNights+' nights</span></div>'+
+        (nights < h.minNights
+          ? '<div class="via" style="margin-top:3px;color:hsl(var(--content-danger))">'+
+            'This rate is not bookable for '+nights+(nights===1?' night':' nights')+'.</div>'
+          : '') : '')+
     '<div class="via" style="margin-top:3px">'+h.rateType+'</div>'+
     '<div class="via" style="margin-top:4px">'+
       (h.prov ? 'Estimate only — this rate has not been pulled yet.' : h.note)+'</div>');
+
   m.on('mouseover',()=>hover(h.name, true));
   m.on('mouseout', ()=>hover(null,   false));
   // popupopen covers both paths: clicking the dot, and clicking the card
@@ -926,7 +937,6 @@ function render(){
   legendEl.innerHTML =
     '<span><i class="sw sw--javits"></i>Javits Center</span>' +
     '<span><i class="sw" style="background:'+tokenHsl('marker-idle')+'"></i>Hotel</span>' +
-    (!showOOP ? '<span><i class="sw sw--out"></i>hidden: over $'+VALUE_CAP+'/night</span>' : '') +
     (HOTELS.some(x=>x.prov) ? '<span><i class="sw sw--prov"></i>Provisional rate</span>' : '') +
     '<span><i class="sw" style="background:'+tokenHsl('marker-active')+'"></i>Hovered</span>';
 
@@ -963,8 +973,11 @@ function render(){
         '<span class="ngt'+(h.prov?' prov':'')+(oop(h)?' oop':'')+'">'+(h.prov?'~':'')+usd(h.low)+'/night</span>'+
         '<span class="mi">'+h.mi.toFixed(2)+' mi</span>'+
         // rate provenance belongs with the figures it qualifies
-        (oop(h) ? '<span class="badge badge--oop">Out of policy</span>' : '')+
-        '<span class="badge badge--'+(h.neg?'neg">Negotiated':'mkt">Market')+'</span>'+
+        // out of policy is the decision-relevant fact; rate origin still shows
+        // in the popup, but on the card it would only dilute the red
+        (oop(h)
+          ? '<span class="badge badge--oop">Out of policy</span>'
+          : '<span class="badge badge--'+(h.neg?'neg">Negotiated':'mkt">Market')+'</span>')+
         (h.prov ? '<span class="badge badge--prov">Est. rate</span>' : '')+
       '</span>';
 
