@@ -134,6 +134,11 @@ h1{font-size:1.25rem;line-height:1.5rem;margin:0;letter-spacing:-.025em;font-wei
   color:hsl(var(--content-secondary));
   border:1px dashed hsl(var(--border-medium));
 }
+/* a negotiated (BCD) rate — the thing a travel buyer is actually looking for */
+.badge--neg{
+  background:hsl(var(--surface-action-strong)/.12);
+  color:hsl(var(--content-action));
+}
 @media (prefers-color-scheme:dark){.badge--roof{color:hsl(var(--accent-pink-300))}}
 
 .legend{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap;
@@ -369,12 +374,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub">Javits Center · 4 nights · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v3.9</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.0</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v4.0</dt>
+      <dd><b>All 19 rates are now real</b> — the six provisional estimates were replaced with pulled figures, and every dashed treatment is gone. Added the rate’s provenance: <b>11 of 19 returned a negotiated BCD rate</b>, flagged on the card and named in the popup. The other eight came back market-only.</dd>
       <dt>v3.9</dt>
       <dd>Removed the small dot beside each hotel name. It was a colour key back when markers encoded price and distance bands; once every marker went neutral it carried nothing, and the selected state is already said by the rail, ring, tint and the map itself.</dd>
       <dt>v3.8</dt>
@@ -448,118 +455,136 @@ const JAVITS = {name:'Jacob K. Javits Convention Center', lat:40.7583595, lon:-7
 const HOTELS = [
 {name:"Courtyard Midtown West", addr:"461 W 34th St", lat:40.7546901, lon:-73.9986506,
  low:873.67, total:3494.68, hiTotal:3769.08, rooms:"10+", type:"Standard",
+ neg:false, rateType:"Member Flexible Rate (market)",
  note:"Member Flexible Rate; accessible options", mi:0.31, walk:8, taxi:5,
- train:{min:9, lines:["7"], via:"34 St–Hudson Yards · 1 stop"},
+ train:{min:9, lines:["7"], via:"34 St\u2013Hudson Yards \u00b7 1 stop"},
  roof:null, vibe:{cool:1, arch:2, scene:1}},
 
 {name:"Pendry Manhattan West", addr:"438 W 33rd St", lat:40.7531622, lon:-73.9984906,
  low:1525.50, total:6102.00, hiTotal:7472.00, rooms:"10+", type:"Deluxe room",
- note:"BCD Travel (WiFi incl.); deluxe + studio rooms", mi:0.41, walk:10, taxi:6,
- train:{min:11, lines:["7"], via:"34 St–Hudson Yards · 1 stop"},
+ neg:true, rateType:"BCD Travel (WiFi incl.)",
+ note:"All returned rates are BCD; deluxe + studio rooms", mi:0.41, walk:10, taxi:6,
+ train:{min:11, lines:["7"], via:"34 St\u2013Hudson Yards \u00b7 1 stop"},
  roof:null, vibe:{cool:4, arch:4, scene:3}},
+
+{name:"Arlo Midtown", addr:"351 W 39th St", lat:40.7560115, lon:-73.9925721,
+ low:391.25, total:1565.00, hiTotal:2785.00, rooms:"10+", type:"King room",
+ neg:true, rateType:"BCD Travel Hotel Program",
+ note:"Negotiated beats market here (market low $414.50); king, urban, terrace rooms", mi:0.53, walk:13, taxi:7,
+ train:{min:14, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
+ roof:"Rooftop bar", vibe:{cool:4, arch:3, scene:3}},
+
+{name:"Ink48 (Kimpton)", addr:"653 Eleventh Ave", lat:40.7645094, lon:-73.9958554,
+ low:445.50, total:1782.00, hiTotal:3182.00, rooms:"10+", type:"King room",
+ neg:true, rateType:"BCD Travel Hotel Program",
+ note:"Negotiated is lowest (market $456.75); king, premier, deluxe, studio rooms", mi:0.54, walk:13, taxi:7,
+ train:{min:22, lines:["A","C","E"], via:"50 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
+ roof:"The Press Lounge", vibe:{cool:4, arch:3, scene:4}},
+
+{name:"EVEN Hotel Times Square South", addr:"321 W 35th St", lat:40.7534756, lon:-73.9938758,
+ low:440.82, total:1763.28, hiTotal:2033.12, rooms:"10+", type:"Standard guest room",
+ neg:true, rateType:"BCD Travel / TMC 7%",
+ note:"All returned rates are negotiated; some rates carry a 3-night minimum", mi:0.55, walk:14, taxi:7,
+ train:{min:15, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
+ roof:null, vibe:{cool:2, arch:2, scene:1}},
+
+{name:"CIVILIAN Hotel", addr:"305 W 48th St", lat:40.7612015, lon:-73.9871805,
+ low:458.75, total:1835.00, hiTotal:2608.00, rooms:"10+", type:"Standard",
+ neg:true, rateType:"BCD Travel Hotel Program",
+ note:"Negotiated is lowest (market $459.00); Stay More & Save, breakfast options", mi:0.81, walk:20, taxi:9,
+ train:{min:15, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
+ roof:"Rooftop bar + terrace", vibe:{cool:4, arch:4, scene:3}},
+
+{name:"The High Line Hotel", addr:"180 Tenth Ave", lat:40.7459314, lon:-74.0050167,
+ low:793.25, total:3173.00, hiTotal:5636.00, rooms:"10+", type:"Standard guest room",
+ neg:true, rateType:"BCD Hotel Directory",
+ note:"Negotiated beats market (Best Flexible $881.50); standard + deluxe rooms", mi:0.87, walk:22, taxi:9,
+ train:{min:18, lines:["A","C","E"], via:"23 St \u2192 34 St\u2013Penn \u00b7 1 stop"},
+ roof:null, vibe:{cool:4, arch:5, scene:3}},
 
 {name:"Courtyard Manhattan/Times Sq", addr:"114 W 40th St", lat:40.7536218, lon:-73.9861665,
  low:395.00, total:1580.00, hiTotal:1856.00, rooms:"10+", type:"Guest room",
- note:"Long Term Stay/Rate, Member Retail", mi:0.90, walk:22, taxi:10,
- train:{min:12, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
+ neg:false, rateType:"Long Term Stay (public)",
+ note:"Long Term Stay / Member Retail; no negotiated rate returned", mi:0.90, walk:22, taxi:10,
+ train:{min:12, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
  roof:null, vibe:{cool:1, arch:1, scene:2}},
+
+{name:"citizenM Times Square", addr:"218 W 50th St", lat:40.7615659, lon:-73.9849656,
+ low:431.75, total:1727.00, hiTotal:2257.00, rooms:"10+", type:"Guest room",
+ neg:false, rateType:"Stay and Save (market)",
+ note:"High-floor + premium-view; breakfast-included options", mi:0.92, walk:23, taxi:10,
+ train:{min:15, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
+ roof:"cloudM rooftop bar", vibe:{cool:3, arch:3, scene:3}},
 
 {name:"The Maritime Hotel", addr:"363 W 16th St", lat:40.7424358, lon:-74.0038670,
  low:532.31, total:2129.24, hiTotal:2505.00, rooms:"10+", type:"Standard/Accessible",
- note:"BCD Travel + SMERATE (some incl. breakfast/WiFi)", mi:1.10, walk:28, taxi:11,
- train:{min:19, lines:["A","C","E"], via:"14 St → 34 St–Penn · 2 stops"},
+ neg:true, rateType:"BCD Travel / SMERATE",
+ note:"All returned rates are BCD; some incl. breakfast/WiFi", mi:1.10, walk:28, taxi:11,
+ train:{min:19, lines:["A","C","E"], via:"14 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
  roof:"Rooftop bar + garden terrace", vibe:{cool:4, arch:5, scene:4}},
 
 {name:"The Standard High Line", addr:"848 Washington St", lat:40.7408533, lon:-74.0080841,
  low:753.50, total:3014.00, hiTotal:3648.00, rooms:"10+", type:"Standard guest room",
- note:"Standard Rate; deluxe + premium rooms", mi:1.25, walk:31, taxi:12,
- train:{min:21, lines:["A","C","E"], via:"14 St → 34 St–Penn · 2 stops"},
+ neg:false, rateType:"Standard Rate (market)",
+ note:"No negotiated rate returned; deluxe + premium rooms", mi:1.25, walk:31, taxi:12,
+ train:{min:21, lines:["A","C","E"], via:"14 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
  roof:"Le Bain + Top of the Standard", vibe:{cool:5, arch:5, scene:5}},
 
 {name:"Gansevoort Meatpacking", addr:"18 Ninth Ave", lat:40.7398769, lon:-74.0057111,
  low:858.60, total:3434.40, hiTotal:3866.40, rooms:"10+", type:"Superior room",
- note:"BCD BCP; superior + deluxe rooms", mi:1.29, walk:32, taxi:12,
- train:{min:21, lines:["A","C","E"], via:"14 St → 34 St–Penn · 2 stops"},
+ neg:true, rateType:"BCD BCP",
+ note:"All returned rates are BCD BCP; superior + deluxe rooms", mi:1.29, walk:32, taxi:12,
+ train:{min:21, lines:["A","C","E"], via:"14 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
  roof:"Rooftop pool + bar", vibe:{cool:3, arch:3, scene:4}},
 
 {name:"The Manner (Hyatt)", addr:"151 Thompson St", lat:40.7270663, lon:-74.0010162,
  low:858.25, total:3433.00, hiTotal:4851.00, rooms:"10+", type:"Standard",
- note:"BCD Travel + Standard Rate; standard + deluxe", mi:2.16, walk:54, taxi:18,
- train:{min:24, lines:["C","E"], via:"Spring St → 34 St–Penn · 4 stops"},
+ neg:true, rateType:"BCD Travel",
+ note:"Negotiated ties market ($858.25); standard + deluxe", mi:2.16, walk:54, taxi:18,
+ train:{min:24, lines:["C","E"], via:"Spring St \u2192 34 St\u2013Penn \u00b7 4 stops"},
  roof:"Rooftop terrace bar", vibe:{cool:5, arch:4, scene:4}},
 
 {name:"PUBLIC", addr:"215 Chrystie St", lat:40.7230653, lon:-73.9920127,
  low:526.50, total:2106.00, hiTotal:2691.00, rooms:"10+", type:"Standard",
- note:"BCD Travel Hotel Program + Mid Market", mi:2.50, walk:62, taxi:20,
- train:{min:28, lines:["F"], via:"2 Av → 34 St–Herald Sq · 4 stops"},
+ neg:true, rateType:"BCD Travel Hotel Program",
+ note:"All returned rates are BCD; double room option", mi:2.50, walk:62, taxi:20,
+ train:{min:28, lines:["F"], via:"2 Av \u2192 34 St\u2013Herald Sq \u00b7 4 stops"},
  roof:"PUBLIC rooftop bar", vibe:{cool:4, arch:4, scene:4}},
 
 {name:"Sheraton Tribeca", addr:"370 Canal St", lat:40.7208780, lon:-74.0041220,
  low:479.00, total:1916.00, hiTotal:2236.00, rooms:"10+", type:"Guest room",
- note:"Member Retail; superior room option", mi:2.59, walk:65, taxi:20,
- train:{min:24, lines:["A","C","E"], via:"Canal St → 34 St–Penn · 3 stops"},
+ neg:false, rateType:"Member Retail Rate (market)",
+ note:"No negotiated rate returned; superior room option", mi:2.59, walk:65, taxi:20,
+ train:{min:24, lines:["A","C","E"], via:"Canal St \u2192 34 St\u2013Penn \u00b7 3 stops"},
  roof:null, vibe:{cool:1, arch:1, scene:1}},
 
 {name:"Sixty LES", addr:"189 Allen St", lat:40.7218303, lon:-73.9892736,
  low:403.33, total:1613.32, hiTotal:1988.88, rooms:"10+", type:"Studio room",
- note:"BCD Travel + Plan Ahead; studio & junior suite", mi:2.61, walk:65, taxi:20,
- train:{min:28, lines:["F"], via:"2 Av → 34 St–Herald Sq · 4 stops"},
+ neg:true, rateType:"BCD Travel Program",
+ note:"BCD ties the public Plan Ahead rate; studio & junior suite", mi:2.61, walk:65, taxi:20,
+ train:{min:28, lines:["F"], via:"2 Av \u2192 34 St\u2013Herald Sq \u00b7 4 stops"},
  roof:"Rooftop pool + bar", vibe:{cool:4, arch:3, scene:4}},
 
 {name:"citizenM New York Bowery", addr:"189 Bowery", lat:40.7205955, lon:-73.9934478,
  low:450.25, total:1801.00, hiTotal:1962.00, rooms:"10+", type:"Guest room",
- note:"Stay and Save; accessible, high-floor, premium-view", mi:2.65, walk:66, taxi:20,
- train:{min:28, lines:["F"], via:"2 Av → 34 St–Herald Sq · 4 stops"},
+ neg:false, rateType:"Stay and Save (market)",
+ note:"No negotiated rate returned; accessible, high-floor, premium-view", mi:2.65, walk:66, taxi:20,
+ train:{min:28, lines:["F"], via:"2 Av \u2192 34 St\u2013Herald Sq \u00b7 4 stops"},
  roof:"cloudM rooftop bar", vibe:{cool:3, arch:3, scene:3}},
 
 {name:"Merchant LES Hotel", addr:"139 Orchard St", lat:40.7199657, lon:-73.9893970,
  low:594.00, total:2376.00, hiTotal:3176.00, rooms:"7", type:"Standard",
- note:"Best Available Rate", mi:2.74, walk:68, taxi:21,
- train:{min:28, lines:["F"], via:"Delancey–Essex → 34 St–Herald Sq · 5 stops"},
+ neg:false, rateType:"Best Available Rate (market)",
+ note:"No negotiated rate returned", mi:2.74, walk:68, taxi:21,
+ train:{min:28, lines:["F"], via:"Delancey\u2013Essex \u2192 34 St\u2013Herald Sq \u00b7 5 stops"},
  roof:null, vibe:{cool:3, arch:3, scene:3}},
 
 {name:"Moxy NYC Downtown", addr:"26 Ann St", lat:40.7108496, lon:-74.0080046,
  low:473.85, total:1895.40, hiTotal:2075.40, rooms:"10+", type:"Standard",
- note:"Stay 3 and Save non-member; accessible available", mi:3.30, walk:82, taxi:25,
- train:{min:30, lines:["A","C"], via:"Fulton St → 34 St–Penn · 5 stops"},
- roof:"Moxy rooftop bar", vibe:{cool:3, arch:2, scene:3}},
-
-/* --- Provisional block. Rates below are ESTIMATES, not pulled from the feed. --- */
-{name:"Arlo Midtown", addr:"351 W 39th St", lat:40.7560115, lon:-73.9925721,
- prov:true, low:429, total:1716, hiTotal:1972, rooms:"—", type:"Standard",
- note:"Provisional rate — not yet pulled", mi:0.53, walk:13, taxi:7,
- train:{min:14, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
- roof:"Rooftop bar", vibe:{cool:4, arch:3, scene:3}},
-
-{name:"Ink48 (Kimpton)", addr:"653 Eleventh Ave", lat:40.7645094, lon:-73.9958554,
- prov:true, low:519, total:2076, hiTotal:2396, rooms:"—", type:"Standard",
- note:"Provisional rate — not yet pulled", mi:0.54, walk:13, taxi:7,
- train:{min:22, lines:["A","C","E"], via:"50 St → 34 St–Penn · 2 stops"},
- roof:"The Press Lounge", vibe:{cool:4, arch:3, scene:4}},
-
-{name:"The High Line Hotel", addr:"180 Tenth Ave", lat:40.7459314, lon:-74.0050167,
- prov:true, low:625, total:2500, hiTotal:2900, rooms:"—", type:"Standard",
- note:"Provisional rate — not yet pulled", mi:0.87, walk:22, taxi:9,
- train:{min:18, lines:["A","C","E"], via:"23 St → 34 St–Penn · 1 stop"},
- roof:null, vibe:{cool:4, arch:5, scene:3}},
-
-{name:"CIVILIAN Hotel", addr:"305 W 48th St", lat:40.7612015, lon:-73.9871805,
- prov:true, low:479, total:1916, hiTotal:2220, rooms:"—", type:"Standard",
- note:"Provisional rate — not yet pulled", mi:0.81, walk:20, taxi:9,
- train:{min:15, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
- roof:"Rooftop bar + terrace", vibe:{cool:4, arch:4, scene:3}},
-
-{name:"EVEN Hotel Times Square South", addr:"321 W 35th St", lat:40.7534756, lon:-73.9938758,
- prov:true, low:389, total:1556, hiTotal:1796, rooms:"—", type:"Standard",
- note:"Provisional rate — not yet pulled", mi:0.55, walk:14, taxi:7,
- train:{min:15, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
- roof:null, vibe:{cool:2, arch:2, scene:1}},
-
-{name:"citizenM Times Square", addr:"218 W 50th St", lat:40.7615659, lon:-73.9849656,
- prov:true, low:465, total:1860, hiTotal:2140, rooms:"—", type:"Standard",
- note:"Provisional rate — not yet pulled", mi:0.92, walk:23, taxi:10,
- train:{min:15, lines:["7"], via:"Times Sq–42 St → Hudson Yards · 2 stops"},
- roof:"cloudM rooftop bar", vibe:{cool:3, arch:3, scene:3}}
+ neg:false, rateType:"Stay 3 and Save (non-member)",
+ note:"No negotiated rate returned; accessible available", mi:3.30, walk:82, taxi:25,
+ train:{min:30, lines:["A","C"], via:"Fulton St \u2192 34 St\u2013Penn \u00b7 5 stops"},
+ roof:"Moxy rooftop bar", vibe:{cool:3, arch:2, scene:3}}
 ];
 
 /* composite vibe score, one decimal */
@@ -750,6 +775,8 @@ HOTELS.forEach(h=>{
     '<div class="pop-row"><span>4 nights</span><span>'+(h.prov?'~':'')+usd(h.total)+'</span></div>'+
     '<div class="pop-row"><span>Per night</span><span>'+(h.prov?'~':'')+usd(h.low)+'</span></div>'+
     (h.prov ? '' : '<div class="pop-row"><span>Room type</span><span>'+h.type+'</span></div>')+
+    '<div class="pop-row"><span>Rate</span><span>'+(h.neg?'Negotiated':'Market')+'</span></div>'+
+    '<div class="via" style="margin-top:3px">'+h.rateType+'</div>'+
     '<div class="via" style="margin-top:4px">'+
       (h.prov ? 'Estimate only — this rate has not been pulled yet.' : h.note)+'</div>');
   m.on('mouseover',()=>hover(h.name, true));
@@ -774,7 +801,7 @@ function render(){
   legendEl.innerHTML =
     '<span><i class="sw sw--javits"></i>Javits Center</span>' +
     '<span><i class="sw" style="background:'+tokenHsl('marker-idle')+'"></i>Hotel</span>' +
-    '<span><i class="sw sw--prov"></i>Provisional rate</span>' +
+    (HOTELS.some(x=>x.prov) ? '<span><i class="sw sw--prov"></i>Provisional rate</span>' : '') +
     '<span><i class="sw" style="background:'+tokenHsl('marker-active')+'"></i>Hovered</span>';
 
   listEl.innerHTML = '';
@@ -810,7 +837,8 @@ function render(){
         '<span class="tot'+(h.prov?' prov':'')+'">'+(h.prov?'~':'')+usd(h.total)+'</span>'+
         '<span class="ngt'+(h.prov?' prov':'')+'">'+(h.prov?'~':'')+usd(h.low)+'/night</span>'+
         '<span class="mi">'+h.mi.toFixed(2)+' mi</span>'+
-        // the estimate caveat belongs with the figures it qualifies
+        // rate provenance belongs with the figures it qualifies
+        (h.neg ? '<span class="badge badge--neg">Negotiated</span>' : '')+
         (h.prov ? '<span class="badge badge--prov">Est. rate</span>' : '')+
       '</span>';
 
@@ -826,10 +854,12 @@ function render(){
 
   const roofs = HOTELS.filter(h=>h.roof).length;
   const prov  = HOTELS.filter(h=>h.prov).length;
+  const neg   = HOTELS.filter(h=>h.neg).length;
   footEl.textContent =
-    HOTELS.length+' hotels · '+roofs+' with a rooftop bar or lounge · sorted by '+M.label.toLowerCase()+
-    ' — distances are straight-line; taxi, subway and vibe scores are estimates, not booked data. '+
-    prov+' rates are provisional (shown dashed, with ~) and have not been pulled yet.';
+    HOTELS.length+' hotels · '+roofs+' with a rooftop bar or lounge · '+neg+' returned a negotiated (BCD) rate · sorted by '+
+    M.label.toLowerCase()+' — rates are the lowest refundable, non-AAA, standard/deluxe, 4 nights. '+
+    'Distances are straight-line; taxi, subway and vibe scores are estimates.'+
+    (prov ? ' '+prov+' rates are provisional and have not been pulled yet.' : '');
 }
 
 /* ---------- segmented control ---------- */
