@@ -435,12 +435,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub" id="sub">Javits Center · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.7</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.8</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v4.8</dt>
+      <dd>Removed <b>EVEN Times Square South</b> and <b>citizenM Times Square</b>. Sixteen hotels, ten in policy.</dd>
       <dt>v4.7</dt>
       <dd><b>Show out of policy now defaults to off.</b> The page opens on the twelve properties you can actually book, with the six over the cap one click away rather than mixed in.</dd>
       <dt>v4.6</dt>
@@ -566,13 +568,6 @@ const HOTELS = [
  train:{min:22, lines:["A","C","E"], via:"50 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
  roof:"The Press Lounge", vibe:{cool:4, arch:3, scene:4}},
 
-{name:"EVEN Hotel Times Square South", addr:"321 W 35th St", lat:40.7534756, lon:-73.9938758,
- low:440.82, total:1763.28, hiTotal:2033.12, rooms:"10+", type:"Standard guest room",
- neg:true, rateType:"BCD Travel / TMC 7%", minNights:3,
- note:"All returned rates are negotiated", mi:0.55, walk:14, taxi:7,
- train:{min:15, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
- roof:null, vibe:{cool:2, arch:2, scene:1}},
-
 {name:"CIVILIAN Hotel", addr:"305 W 48th St", lat:40.7612015, lon:-73.9871805,
  low:458.75, total:1835.00, hiTotal:2608.00, rooms:"10+", type:"Standard",
  neg:true, rateType:"BCD Travel Hotel Program",
@@ -593,13 +588,6 @@ const HOTELS = [
  note:"Long Term Stay / Member Retail; no negotiated rate returned", mi:0.90, walk:22, taxi:10,
  train:{min:12, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
  roof:null, vibe:{cool:1, arch:1, scene:2}},
-
-{name:"citizenM Times Square", addr:"218 W 50th St", lat:40.7615659, lon:-73.9849656,
- low:431.75, total:1727.00, hiTotal:2257.00, rooms:"10+", type:"Guest room",
- neg:false, rateType:"Stay and Save (market)",
- note:"High-floor + premium-view; breakfast-included options", mi:0.92, walk:23, taxi:10,
- train:{min:15, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
- roof:"cloudM rooftop bar", vibe:{cool:3, arch:3, scene:3}},
 
 {name:"The Maritime Hotel", addr:"363 W 16th St", lat:40.7424358, lon:-74.0038670,
  low:532.31, total:2129.24, hiTotal:2505.00, rooms:"10+", type:"Standard/Accessible",
