@@ -360,6 +360,8 @@ li:hover::after,li.on::after{opacity:1;right:11px}
 .rt .badge--prov{margin-top:5px}
 .tot{font-family:var(--font-inter);font-weight:600;font-size:.9375rem;font-variant-numeric:tabular-nums}
 .tot.prov,.ngt.prov{color:hsl(var(--content-secondary))}
+/* the figures themselves carry the breach, not just the chip */
+.tot.oop,.ngt.oop{color:hsl(var(--content-danger))}
 .tot.prov{border-bottom:1px dashed hsl(var(--border-medium));padding-bottom:1px}
 .ngt{font-family:var(--font-inter);font-size:.6875rem;color:hsl(var(--content-tertiary));font-variant-numeric:tabular-nums}
 .mi{font-family:var(--font-inter);font-size:.6875rem;color:hsl(var(--content-tertiary));font-variant-numeric:tabular-nums}
@@ -410,12 +412,14 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Conference Hotels</h1>
     <span class="sub">Javits Center · 4 nights · refundable · straight-line distance</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.3</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v4.4</button>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v4.4</dt>
+      <dd>Demoted the pink <b>Rooftop</b> badge to the detail popup. Two badges in the red-pink family were competing, and policy is the more consequential of the two — red now means one thing on a card. <b>Out-of-policy prices are set in red</b> as well, so the breach is carried by the figures themselves and not only by a chip.</dd>
       <dt>v4.3</dt>
       <dd>Nothing is filtered out by default any more. Everything over <b>$560 a night</b> is ranked alongside the rest and carries a red <b>Out of policy</b> badge, with a <b>Show out of policy</b> switch to hide those seven when you want a clean list. Policy is a property of the hotel, so the badge and the switch work in all four tabs, not just Best value. Also tightened every badge — they were inheriting the body’s 1.5 line-height, which added invisible leading and read as heavy padding.</dd>
       <dt>v4.2</dt>
@@ -849,7 +853,8 @@ HOTELS.forEach(h=>{
     '<hr class="pop-hr">'+
     '<div class="pop-label">Price'+(h.prov?' — provisional':'')+'</div>'+
     '<div class="pop-row"><span>4 nights</span><span>'+(h.prov?'~':'')+usd(h.total)+'</span></div>'+
-    '<div class="pop-row"><span>Per night</span><span>'+(h.prov?'~':'')+usd(h.low)+'</span></div>'+
+    '<div class="pop-row"><span>Per night</span><span'+(oop(h)?' style="color:hsl(var(--content-danger))"':'')+'>'+
+      (h.prov?'~':'')+usd(h.low)+'</span></div>'+
     (h.prov ? '' : '<div class="pop-row"><span>Room type</span><span>'+h.type+'</span></div>')+
     '<div class="pop-row"><span>Rate</span><span>'+(h.neg?'Negotiated':'Market')+'</span></div>'+
     (oop(h) ? '<div class="pop-row"><span>Policy</span><span style="color:hsl(var(--content-danger))">Over $'+VALUE_CAP+'/night</span></div>' : '')+
@@ -892,9 +897,9 @@ function render(){
     li.innerHTML =
       '<span class="rank">'+(i+1)+'</span>'+
       '<span class="body">'+
-        '<span class="nm">'+h.name+
-          (h.roof ? '<span class="badge badge--roof">'+svg('roof')+'Rooftop</span>' : '')+
-        '</span>'+
+        // rooftop lives in the popup now: its pink was fighting the red
+        // out-of-policy badge, and policy is the more consequential signal
+        '<span class="nm">'+h.name+'</span>'+
         '<span class="transit">'+
           '<span class="leg'+(trainWins?'':' best')+'">'+svg('walk')+h.walk+' min</span>'+
           '<span class="leg">'+svg('taxi')+h.taxi+' min</span>'+
@@ -913,8 +918,8 @@ function render(){
         '</span>'+
       '</span>'+
       '<span class="rt">'+
-        '<span class="tot'+(h.prov?' prov':'')+'">'+(h.prov?'~':'')+usd(h.total)+'</span>'+
-        '<span class="ngt'+(h.prov?' prov':'')+'">'+(h.prov?'~':'')+usd(h.low)+'/night</span>'+
+        '<span class="tot'+(h.prov?' prov':'')+(oop(h)?' oop':'')+'">'+(h.prov?'~':'')+usd(h.total)+'</span>'+
+        '<span class="ngt'+(h.prov?' prov':'')+(oop(h)?' oop':'')+'">'+(h.prov?'~':'')+usd(h.low)+'/night</span>'+
         '<span class="mi">'+h.mi.toFixed(2)+' mi</span>'+
         // rate provenance belongs with the figures it qualifies
         (oop(h) ? '<span class="badge badge--oop">Out of policy</span>' : '')+
