@@ -154,6 +154,23 @@ h1{font-size:1.25rem;line-height:1.5rem;margin:0;letter-spacing:-.025em;font-wei
 }
 @media (prefers-color-scheme:dark){.badge--roof{color:hsl(var(--accent-pink-300))}}
 
+.viewtog{
+  display:none;margin-left:auto;padding:3px;gap:2px;
+  border-radius:var(--radius);background:hsl(var(--surface-foreground));
+  border:1px solid hsl(var(--border-subtle));
+}
+.viewtog button{
+  appearance:none;border:0;background:none;cursor:pointer;
+  font-family:var(--font-inter);font-size:.75rem;font-weight:600;line-height:1;
+  color:hsl(var(--content-secondary));padding:7px 16px;
+  border-radius:calc(var(--radius) - 2px);
+}
+.viewtog button[aria-pressed="true"]{
+  background:hsl(var(--surface-midground));color:hsl(var(--content-primary));
+  box-shadow:var(--shadow-raise);
+}
+.viewtog button:focus-visible{outline:2px solid hsl(var(--surface-action-strong));outline-offset:1px}
+
 .legend{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap;
   font-family:var(--font-inter);font-size:.6875rem;color:hsl(var(--content-secondary));align-items:center}
 .legend span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
@@ -390,11 +407,6 @@ li:hover::after,li.on::after{opacity:1;right:11px}
 .mi{font-family:var(--font-inter);font-size:.6875rem;color:hsl(var(--content-tertiary));font-variant-numeric:tabular-nums}
 .warn{font-family:var(--font-inter);font-size:.6875rem;color:hsl(var(--content-warning));font-weight:600}
 
-footer{
-  grid-column:1/-1;padding:10px 22px;border-top:1px solid hsl(var(--border-subtle));
-  background:hsl(var(--surface-midground));color:hsl(var(--content-tertiary));
-  font-family:var(--font-inter);font-size:.6875rem;
-}
 
 /* leaflet overrides */
 .leaflet-popup-content{font-family:var(--font-jakarta);font-size:.8125rem;margin:14px 16px;min-width:225px}
@@ -424,9 +436,20 @@ footer{
 }
 
 @media (max-width:1060px){
-  .wrap{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto 46vh minmax(0,1fr) auto}
+  /* Flex, not grid. The old row template assumed .changelog occupied a row;
+     it is display:none, so every item shifted up one and the map inherited an
+     auto row (collapsing to zero) while the footer inherited 1fr. */
+  .wrap{display:flex;flex-direction:column;height:100dvh}
+  #map, aside{flex:1 1 auto;min-height:0}
   aside{border-left:0;border-top:1px solid hsl(var(--border-subtle))}
-  .legend{margin-left:0;width:100%}
+  .wrap[data-mv="list"] #map{display:none}
+  .wrap[data-mv="map"] aside{display:none}
+  .legend{display:none}          /* 'Hovered' means nothing on touch */
+  .viewtog{display:inline-flex}
+  header{padding:12px 16px;gap:10px}
+  h1{font-size:1.0625rem}
+  .ctl{padding:12px 14px}
+  ol{padding:12px}
 }
 </style>
 </head>
@@ -435,12 +458,18 @@ footer{
   <header>
     <h1>Business Travel News (BTN) NYC Hotels</h1>
     <span class="sub" id="sub">Javits Center · refundable · lowest rate per hotel</span>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.5</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.6</button>
+    <div class="viewtog" role="group" aria-label="Switch between list and map">
+      <button id="mv-list" aria-pressed="true">List</button>
+      <button id="mv-map" aria-pressed="false">Map</button>
+    </div>
     <div class="legend" id="legend"></div>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v5.6</dt>
+      <dd>Fixed the phone layout. The footer is gone — it was announcing how many properties were being withheld, which no visitor should be told, and a row-template bug was letting it swallow half the screen while the map collapsed to nothing. Narrow screens now get a <b>List / Map switch</b>, each taking the full height, and tapping a card jumps to its pin.</dd>
       <dt>v5.5</dt>
       <dd>Title shortened to <b>Business Travel News (BTN) NYC Hotels</b>.</dd>
       <dt>v5.4</dt>
@@ -546,7 +575,6 @@ footer{
     <ol id="list"></ol>
   </aside>
 
-  <footer id="foot"></footer>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -923,7 +951,7 @@ ROSTER.forEach(h=>{
 const listEl   = document.getElementById('list');
 const legendEl = document.getElementById('legend');
 const indEl    = document.getElementById('ind');
-const footEl   = document.getElementById('foot');
+const subEl    = document.getElementById('sub');
 
 function render(){
   const M = MODES[mode];
@@ -979,7 +1007,11 @@ function render(){
 
     li.onmouseenter = ()=>hover(h.name, false);
     li.onmouseleave = ()=>hover(null,   false);
-    li.onclick      = ()=>{ map.setView([h.lat,h.lon],15); marks[h.name].openPopup(); };
+    li.onclick      = ()=>{
+      if (isNarrow()) setView('map');
+      map.setView([h.lat,h.lon],15);
+      marks[h.name].openPopup();
+    };
     rows[h.name] = li;
     listEl.appendChild(li);
   });
@@ -987,18 +1019,10 @@ function render(){
   paint();
   syncList(false);   // a selection survives re-sorting
 
-  const roofs = ROSTER.filter(h=>h.roof).length;
-  const prov  = ROSTER.filter(h=>h.prov).length;
-  const neg   = ROSTER.filter(h=>h.neg).length;
-  const nOop  = ROSTER.filter(oop).length;
-  footEl.textContent =
-    ordered.length+(showOOP?'':' of '+ROSTER.length)+' hotels · '+
-    nOop+' over $'+VALUE_CAP+'/night'+(showOOP?' (flagged out of policy)':' hidden')+' · '+
-    neg+' negotiated (BCD), '+(ROSTER.length-neg)+' market-only · '+
-    (mode==='b' ? 'ranked on price and distance together' : 'sorted by '+M.label.toLowerCase())+'. '+
-    'Rates are the lowest refundable, non-AAA, standard/deluxe, '+nights+(nights===1?' night. ':' nights. ')+
-    'Distances are straight-line; taxi, subway and vibe scores are estimates.'+
-    (prov ? ' '+prov+' rates are provisional and have not been pulled yet.' : '');
+  // Footer removed: it announced how many hotels were being withheld, which is
+  // not something a visitor should be told. The rate basis moved to the subtitle.
+  subEl.textContent = 'Javits Center · lowest refundable rate · ' +
+    nights + (nights === 1 ? ' night' : ' nights');
 }
 
 /* ---------- segmented control ---------- */
@@ -1016,6 +1040,20 @@ ORDER.forEach(k=>{
 window.addEventListener('hashchange',()=>setMode(fromHash(),false));
 
 /* ---------- changelog ---------- */
+/* ---------- mobile list / map switch ---------- */
+const wrapEl = document.querySelector('.wrap');
+const isNarrow = () => window.matchMedia('(max-width:1060px)').matches;
+wrapEl.dataset.mv = 'list';
+function setView(v){
+  wrapEl.dataset.mv = v;
+  document.getElementById('mv-list').setAttribute('aria-pressed', String(v==='list'));
+  document.getElementById('mv-map').setAttribute('aria-pressed',  String(v==='map'));
+  // Leaflet sizes itself on init; a pane revealed later needs telling
+  if (v === 'map') requestAnimationFrame(()=>map.invalidateSize());
+}
+document.getElementById('mv-list').addEventListener('click', ()=>setView('list'));
+document.getElementById('mv-map').addEventListener('click',  ()=>setView('map'));
+
 const nightsSel = document.getElementById('nights');
 nightsSel.value = String(nights);
 nightsSel.addEventListener('change', ()=>{
