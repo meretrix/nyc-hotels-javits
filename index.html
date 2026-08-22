@@ -62,6 +62,7 @@
   --marker-active:var(--brand-500);
   --content-warning:var(--warning-800);
   --content-danger:var(--danger-700);
+  --content-quiet:var(--neutral-500);
   --javits:var(--accent-indigo-600);
 
   --radius:0.5rem;
@@ -87,6 +88,7 @@
     --marker-active:var(--brand-400,192 93% 60%);
     --content-warning:var(--warning-400);
     --content-danger:var(--danger-400);
+    --content-quiet:var(--neutral-600);
     --javits:var(--accent-pink-300);
   }
 }
@@ -108,6 +110,7 @@
     --marker-active:var(--brand-400,192 93% 60%);
     --content-warning:var(--warning-400);
     --content-danger:var(--danger-400);
+    --content-quiet:var(--neutral-600);
     --javits:var(--accent-pink-300);
 }
 
@@ -342,43 +345,55 @@ aside{background:hsl(var(--surface-background));border-left:1px solid hsl(var(--
 
 /* card-based sectioning, after the andavo.com marketing language */
 ol{list-style:none;margin:0;padding:14px;display:flex;flex-direction:column;gap:10px}
+
+/* Card per Figma 338:2928. Two columns: details left, prices right-aligned. */
 li{
   position:relative;
-  display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:6px 12px;
-  padding:15px 17px;
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;
+  padding:24px;
   background:hsl(var(--surface-midground));
-  border:1px solid hsl(var(--border-subtle));
-  border-radius:calc(var(--radius) * 1.5);
-  cursor:pointer;align-items:start;
+  border:1px solid hsl(var(--border-card));
+  border-radius:var(--radius);
+  cursor:pointer;
+  font-family:var(--font-inter);
   transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
-/* hover = light preview */
 li:hover,li.on{
   border-color:hsl(var(--border-medium));
   box-shadow:var(--shadow-raise);
   transform:translateY(-1px);
 }
-/* selected = unmistakable. Ring + accent rail + tinted ground, so a card
-   picked from the map is findable at a glance after the list scrolls. */
 li.sel,li.sel:hover{
   border-color:hsl(var(--marker-active));
   background:hsl(var(--marker-active)/.10);
   box-shadow:0 0 0 3px hsl(var(--marker-active)/.20), var(--shadow-raise);
   transform:translateY(-1px);
 }
-li.sel::before{
-  content:'';position:absolute;left:0;top:11px;bottom:11px;width:3px;
-  border-radius:0 3px 3px 0;background:hsl(var(--marker-active));
+@media (prefers-reduced-motion:reduce){li{transition:none}li:hover,li.on,li.sel{transform:none}}
+
+.cd{display:flex;flex-direction:column;gap:16px;min-width:0}
+.cd-head{display:flex;flex-direction:column;gap:12px;min-width:0}
+.cd-name{
+  font-size:16px;line-height:16px;font-weight:400;letter-spacing:.08px;
+  color:hsl(var(--content-primary));
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-li.sel .nm{color:hsl(var(--content-primary))}
-li::after{  /* arrow affordance — the marketing site's card cue */
-  content:'';position:absolute;right:14px;bottom:14px;
-  width:7px;height:7px;border-right:1.6px solid hsl(var(--content-tertiary));
-  border-top:1.6px solid hsl(var(--content-tertiary));
-  transform:rotate(45deg);opacity:0;transition:opacity .18s ease,right .18s ease;
+.cd-sub{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.cd-hood{font-size:12px;line-height:12px;color:hsl(var(--content-quiet));white-space:nowrap}
+.cd-legs{display:flex;align-items:center;gap:24px;flex-wrap:wrap;min-height:26px}
+
+.cp{display:flex;flex-direction:column;align-items:flex-end;gap:12px;text-align:right}
+.cp-total{
+  font-size:16px;line-height:16px;font-weight:700;letter-spacing:.08px;
+  color:hsl(var(--content-primary));font-variant-numeric:tabular-nums;white-space:nowrap;
 }
-li:hover::after,li.on::after{opacity:1;right:11px}
-@media (prefers-reduced-motion:reduce){li,li::after{transition:none}li:hover,li.on{transform:none}}
+.cp-night,.cp-dist{
+  font-size:12px;line-height:12px;color:hsl(var(--content-quiet));
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.cp-dist{margin-top:auto}
+.cp-total.oop,.cp-night.oop{color:hsl(var(--content-danger))}
+
 .rank{
   font-family:var(--font-inter);font-size:.75rem;font-weight:600;
   color:hsl(var(--content-tertiary));padding-top:2px;font-variant-numeric:tabular-nums;
@@ -392,9 +407,10 @@ li:hover::after,li.on::after{opacity:1;right:11px}
   font-family:var(--font-inter);font-size:.75rem;line-height:1.125rem;
   color:hsl(var(--content-secondary));font-variant-numeric:tabular-nums;
 }
-.leg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.leg svg{width:15px;height:15px;flex:none;stroke:currentColor;fill:none;
-  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+.leg{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  font-size:12px;line-height:12px;color:hsl(var(--content-secondary));
+  font-variant-numeric:tabular-nums}
+.leg svg{flex:none;fill:currentColor}
 .lines{display:inline-flex;gap:3px;margin-left:1px}
 .bullet{
   width:15px;height:15px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
@@ -410,8 +426,8 @@ li:hover::after,li.on::after{opacity:1;right:11px}
 /* vibe meter */
 /* outbound to the real reviews — the crowd counterpoint to the vibe score */
 .glink{
-  display:inline-flex;align-items:center;gap:4px;
-  font-family:var(--font-inter);font-size:.6875rem;font-weight:600;
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:12px;line-height:12px;font-weight:400;
   color:hsl(var(--content-action));text-decoration:none;
   border-bottom:1px solid transparent;
 }
@@ -419,20 +435,13 @@ li:hover::after,li.on::after{opacity:1;right:11px}
 .glink:focus-visible{outline:2px solid hsl(var(--surface-action-strong));outline-offset:2px;border-radius:2px}
 .glink svg{width:12px;height:12px;fill:currentColor;stroke:none;flex:none}
 
-.vibe{display:inline-flex;align-items:center;gap:5px;cursor:help}
-.vibe svg{
-  width:13px;height:13px;flex:none;fill:none;stroke:hsl(var(--surface-feature-accent));
-  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vibe svg{stroke:hsl(var(--accent-pink-300))}}
-:root[data-theme="dark"] .vibe svg{stroke:hsl(var(--accent-pink-300))}
+.vibe{display:inline-flex;align-items:center;gap:6px;cursor:help}
+.vibe svg{flex:none;fill:hsl(var(--surface-feature-accent));stroke:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vibe svg{fill:hsl(var(--accent-pink-300))}}
+:root[data-theme="dark"] .vibe svg{fill:hsl(var(--accent-pink-300))}
 /* Matches .leg / .meta — the only figure on the card that was falling
    through to Jakarta, whose numerals read as a display face beside Inter. */
-.vnum{
-  font-family:var(--font-inter);font-size:.75rem;line-height:1.125rem;
-  font-weight:600;font-variant-numeric:tabular-nums;
-  color:hsl(var(--content-secondary));
-}
+.vnum{font-size:12px;line-height:12px;font-variant-numeric:tabular-nums;color:hsl(var(--content-quiet))}
 
 .rt{text-align:right;white-space:nowrap;display:flex;flex-direction:column;gap:2px;align-items:flex-end}
 .rt .badge--prov{margin-top:5px}
@@ -496,12 +505,14 @@ li:hover::after,li.on::after{opacity:1;right:11px}
 <div class="wrap">
   <header>
     <h1>NYC Hotels</h1>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.9</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v6.0</button>
     <button class="themetog" id="theme" aria-label="Switch to dark mode"></button>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v6.0</dt>
+      <dd>New card, built to the Figma spec. Three lines instead of five: name and total, then <b>neighbourhood</b> with the vibe score and reviews, then the commute times with the distance. Every hotel gained a neighbourhood, derived from its own address. Icons are the exported filled glyphs from the design rather than the hand-drawn strokes. Room type, rank number and the rate-origin chip came off the card — all three still show in the detail panel.</dd>
       <dt>v5.9</dt>
       <dd>Retitled <b>NYC Hotels</b>. Added a <b>light/dark toggle</b> at the top right — it follows your system by default and only pins a theme once you press it, and the map basemap follows with it. The <b>sort tabs and controls now collapse</b> as you scroll down the list and return as soon as you scroll back up; the header bar stays put.</dd>
       <dt>v5.8</dt>
@@ -629,105 +640,105 @@ li:hover::after,li.on::after{opacity:1;right:11px}
 const JAVITS = {name:'Jacob K. Javits Convention Center', lat:40.7583595, lon:-74.0021206};
 
 const HOTELS = [
-{name:"Arlo Midtown", share:true, addr:"351 W 39th St", lat:40.7560115, lon:-73.9925721,
+{name:"Arlo Midtown", share:true, hood:"Garment District", addr:"351 W 39th St", lat:40.7560115, lon:-73.9925721,
  low:391.25, total:1565.00, hiTotal:2785.00, rooms:"10+", type:"King room",
  neg:true, rateType:"BCD Travel Hotel Program",
  note:"Negotiated beats market here (market low $414.50); king, urban, terrace rooms", mi:0.53, walk:13, taxi:7,
  train:{min:14, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
  roof:"Rooftop bar", vibe:{cool:4, arch:3, scene:3}},
 
-{name:"Ink48 (Kimpton)", share:true, addr:"653 Eleventh Ave", lat:40.7645094, lon:-73.9958554,
+{name:"Ink48 (Kimpton)", share:true, hood:"Hell's Kitchen", addr:"653 Eleventh Ave", lat:40.7645094, lon:-73.9958554,
  low:445.50, total:1782.00, hiTotal:3182.00, rooms:"10+", type:"King room",
  neg:true, rateType:"BCD Travel Hotel Program",
  note:"Negotiated is lowest (market $456.75); king, premier, deluxe, studio rooms", mi:0.54, walk:13, taxi:7,
  train:{min:22, lines:["A","C","E"], via:"50 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
  roof:"The Press Lounge", vibe:{cool:4, arch:3, scene:4}},
 
-{name:"CIVILIAN Hotel", share:true, addr:"305 W 48th St", lat:40.7612015, lon:-73.9871805,
+{name:"CIVILIAN Hotel", share:true, hood:"Theater District", addr:"305 W 48th St", lat:40.7612015, lon:-73.9871805,
  low:458.75, total:1835.00, hiTotal:2608.00, rooms:"10+", type:"Standard",
  neg:true, rateType:"BCD Travel Hotel Program",
  note:"Negotiated is lowest (market $459.00); Stay More & Save, breakfast options", mi:0.81, walk:20, taxi:9,
  train:{min:15, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
  roof:"Rooftop bar + terrace", vibe:{cool:4, arch:4, scene:3}},
 
-{name:"The High Line Hotel", share:true, addr:"180 Tenth Ave", lat:40.7459314, lon:-74.0050167,
+{name:"The High Line Hotel", share:true, hood:"Chelsea", addr:"180 Tenth Ave", lat:40.7459314, lon:-74.0050167,
  low:793.25, total:3173.00, hiTotal:5636.00, rooms:"10+", type:"Standard guest room",
  neg:true, rateType:"BCD Hotel Directory",
  note:"Negotiated beats market (Best Flexible $881.50); standard + deluxe rooms", mi:0.87, walk:22, taxi:9,
  train:{min:18, lines:["A","C","E"], via:"23 St \u2192 34 St\u2013Penn \u00b7 1 stop"},
  roof:null, vibe:{cool:4, arch:5, scene:3}},
 
-{name:"Courtyard Manhattan/Times Sq", addr:"114 W 40th St", lat:40.7536218, lon:-73.9861665,
+{name:"Courtyard Manhattan/Times Sq", hood:"Bryant Park", addr:"114 W 40th St", lat:40.7536218, lon:-73.9861665,
  low:395.00, total:1580.00, hiTotal:1856.00, rooms:"10+", type:"Guest room",
  neg:false, rateType:"Long Term Stay (public)",
  note:"Long Term Stay / Member Retail; no negotiated rate returned", mi:0.90, walk:22, taxi:10,
  train:{min:12, lines:["7"], via:"Times Sq\u201342 St \u2192 Hudson Yards \u00b7 2 stops"},
  roof:null, vibe:{cool:1, arch:1, scene:2}},
 
-{name:"The Maritime Hotel", share:true, addr:"363 W 16th St", lat:40.7424358, lon:-74.0038670,
+{name:"The Maritime Hotel", share:true, hood:"Chelsea", addr:"363 W 16th St", lat:40.7424358, lon:-74.0038670,
  low:532.31, total:2129.24, hiTotal:2505.00, rooms:"10+", type:"Standard/Accessible",
  neg:true, rateType:"BCD Travel / SMERATE",
  note:"All returned rates are BCD; some incl. breakfast/WiFi", mi:1.10, walk:28, taxi:11,
  train:{min:19, lines:["A","C","E"], via:"14 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
  roof:"Rooftop bar + garden terrace", vibe:{cool:4, arch:5, scene:4}},
 
-{name:"The Standard High Line", share:true, addr:"848 Washington St", lat:40.7408533, lon:-74.0080841,
+{name:"The Standard High Line", share:true, hood:"Meatpacking District", addr:"848 Washington St", lat:40.7408533, lon:-74.0080841,
  low:753.50, total:3014.00, hiTotal:3648.00, rooms:"10+", type:"Standard guest room",
  neg:false, rateType:"Standard Rate (market)",
  note:"No negotiated rate returned; deluxe + premium rooms", mi:1.25, walk:31, taxi:12,
  train:{min:21, lines:["A","C","E"], via:"14 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
  roof:"Le Bain + Top of the Standard", vibe:{cool:5, arch:5, scene:5}},
 
-{name:"Gansevoort Meatpacking", addr:"18 Ninth Ave", lat:40.7398769, lon:-74.0057111,
+{name:"Gansevoort Meatpacking", hood:"Meatpacking District", addr:"18 Ninth Ave", lat:40.7398769, lon:-74.0057111,
  low:858.60, total:3434.40, hiTotal:3866.40, rooms:"10+", type:"Superior room",
  neg:true, rateType:"BCD BCP",
  note:"All returned rates are BCD BCP; superior + deluxe rooms", mi:1.29, walk:32, taxi:12,
  train:{min:21, lines:["A","C","E"], via:"14 St \u2192 34 St\u2013Penn \u00b7 2 stops"},
  roof:"Rooftop pool + bar", vibe:{cool:3, arch:3, scene:4}},
 
-{name:"The Manner (Hyatt)", addr:"151 Thompson St", lat:40.7270663, lon:-74.0010162,
+{name:"The Manner (Hyatt)", hood:"SoHo", addr:"151 Thompson St", lat:40.7270663, lon:-74.0010162,
  low:858.25, total:3433.00, hiTotal:4851.00, rooms:"10+", type:"Standard",
  neg:true, rateType:"BCD Travel",
  note:"Negotiated ties market ($858.25); standard + deluxe", mi:2.16, walk:54, taxi:18,
  train:{min:24, lines:["C","E"], via:"Spring St \u2192 34 St\u2013Penn \u00b7 4 stops"},
  roof:"Rooftop terrace bar", vibe:{cool:5, arch:4, scene:4}},
 
-{name:"PUBLIC", share:true, addr:"215 Chrystie St", lat:40.7230653, lon:-73.9920127,
+{name:"PUBLIC", share:true, hood:"Lower East Side", addr:"215 Chrystie St", lat:40.7230653, lon:-73.9920127,
  low:526.50, total:2106.00, hiTotal:2691.00, rooms:"10+", type:"Standard",
  neg:true, rateType:"BCD Travel Hotel Program",
  note:"All returned rates are BCD; double room option", mi:2.50, walk:62, taxi:20,
  train:{min:28, lines:["F"], via:"2 Av \u2192 34 St\u2013Herald Sq \u00b7 4 stops"},
  roof:"PUBLIC rooftop bar", vibe:{cool:4, arch:4, scene:4}},
 
-{name:"Sheraton Tribeca", addr:"370 Canal St", lat:40.7208780, lon:-74.0041220,
+{name:"Sheraton Tribeca", hood:"Tribeca", addr:"370 Canal St", lat:40.7208780, lon:-74.0041220,
  low:479.00, total:1916.00, hiTotal:2236.00, rooms:"10+", type:"Guest room",
  neg:false, rateType:"Member Retail Rate (market)",
  note:"No negotiated rate returned; superior room option", mi:2.59, walk:65, taxi:20,
  train:{min:24, lines:["A","C","E"], via:"Canal St \u2192 34 St\u2013Penn \u00b7 3 stops"},
  roof:null, vibe:{cool:1, arch:1, scene:1}},
 
-{name:"Sixty LES", addr:"189 Allen St", lat:40.7218303, lon:-73.9892736,
+{name:"Sixty LES", hood:"Lower East Side", addr:"189 Allen St", lat:40.7218303, lon:-73.9892736,
  low:403.33, total:1613.32, hiTotal:1988.88, rooms:"10+", type:"Studio room",
  neg:true, rateType:"BCD Travel Program",
  note:"BCD ties the public Plan Ahead rate; studio & junior suite", mi:2.61, walk:65, taxi:20,
  train:{min:28, lines:["F"], via:"2 Av \u2192 34 St\u2013Herald Sq \u00b7 4 stops"},
  roof:"Rooftop pool + bar", vibe:{cool:4, arch:3, scene:4}},
 
-{name:"citizenM New York Bowery", share:true, addr:"189 Bowery", lat:40.7205955, lon:-73.9934478,
+{name:"citizenM New York Bowery", share:true, hood:"Bowery", addr:"189 Bowery", lat:40.7205955, lon:-73.9934478,
  low:450.25, total:1801.00, hiTotal:1962.00, rooms:"10+", type:"Guest room",
  neg:false, rateType:"Stay and Save (market)",
  note:"No negotiated rate returned; accessible, high-floor, premium-view", mi:2.65, walk:66, taxi:20,
  train:{min:28, lines:["F"], via:"2 Av \u2192 34 St\u2013Herald Sq \u00b7 4 stops"},
  roof:"cloudM rooftop bar", vibe:{cool:3, arch:3, scene:3}},
 
-{name:"Merchant LES Hotel", addr:"139 Orchard St", lat:40.7199657, lon:-73.9893970,
+{name:"Merchant LES Hotel", hood:"Lower East Side", addr:"139 Orchard St", lat:40.7199657, lon:-73.9893970,
  low:594.00, total:2376.00, hiTotal:3176.00, rooms:"7", type:"Standard",
  neg:false, rateType:"Best Available Rate (market)",
  note:"No negotiated rate returned", mi:2.74, walk:68, taxi:21,
  train:{min:28, lines:["F"], via:"Delancey\u2013Essex \u2192 34 St\u2013Herald Sq \u00b7 5 stops"},
  roof:null, vibe:{cool:3, arch:3, scene:3}},
 
-{name:"Moxy NYC Downtown", addr:"26 Ann St", lat:40.7108496, lon:-74.0080046,
+{name:"Moxy NYC Downtown", hood:"Financial District", addr:"26 Ann St", lat:40.7108496, lon:-74.0080046,
  low:473.85, total:1895.40, hiTotal:2075.40, rooms:"10+", type:"Standard",
  neg:false, rateType:"Stay 3 and Save (non-member)",
  note:"No negotiated rate returned; accessible available", mi:3.30, walk:82, taxi:25,
@@ -759,18 +770,14 @@ const YELLOW = new Set(['N','Q','R','W']);
 
 /* ---------- icons (Phosphor-flavoured, drawn inline — no CDN) ---------- */
 const ICON = {
-  walk:'<circle cx="12.6" cy="4.3" r="2"/><path d="M12.6 8.2 11 13.6"/>'+
-       '<path d="M11 13.6 8.4 21"/><path d="M11 13.6 14.6 16.6 15.6 21"/>'+
-       '<path d="M12.6 9.6 8.7 11.6"/><path d="M12.6 9.6 16.2 12.1"/>',
-  taxi:'<path d="M9.5 3.2h5v2.4h-5z"/>'+
-       '<path d="M4 16.6v-3.3l2.2-4.4a1.5 1.5 0 0 1 1.35-.85h8.9a1.5 1.5 0 0 1 1.35.85L20 13.3v3.3"/>'+
-       '<path d="M4 13.3h16"/><circle cx="7.6" cy="17.4" r="1.6"/><circle cx="16.4" cy="17.4" r="1.6"/>',
-  train:'<rect x="5" y="3" width="14" height="15" rx="3.5"/><path d="M5 10.5h14"/>'+
-        '<circle cx="9.6" cy="14" r="1"/><circle cx="14.4" cy="14" r="1"/>'+
-        '<path d="M8.6 18 6.6 21"/><path d="M15.4 18 17.4 21"/>',
-  roof:'<path d="M4 4h16l-8 8z"/><path d="M12 12v7"/><path d="M8.4 20h7.2"/>'
+  /* Exported from the Figma card (338:2928) — Phosphor-style FILLED glyphs,
+     inlined so nothing is fetched and both themes inherit via currentColor. */
+  walk:{w:9.42149,h:12,vb:'0 0 9.42149 12',d:'M5.99291 3.42857C6.33197 3.42857 6.66341 3.32803 6.94532 3.13966C7.22723 2.9513 7.44696 2.68356 7.57671 2.37032C7.70646 2.05707 7.74041 1.71239 7.67426 1.37985C7.60811 1.04731 7.44484 0.741851 7.2051 0.502103C6.96535 0.262356 6.65989 0.0990864 6.32735 0.0329403C5.99482 -0.0332058 5.65013 0.000742769 5.33689 0.130493C5.02364 0.260243 4.75591 0.479968 4.56754 0.76188C4.37917 1.04379 4.27863 1.37523 4.27863 1.71429C4.27863 2.16894 4.45924 2.60498 4.78073 2.92647C5.10222 3.24796 5.53826 3.42857 5.99291 3.42857ZM5.99291 0.857144C6.16244 0.857144 6.32816 0.907414 6.46912 1.0016C6.61007 1.09578 6.71994 1.22965 6.78481 1.38627C6.84969 1.54289 6.86666 1.71524 6.83359 1.88151C6.80051 2.04778 6.71888 2.2005 6.59901 2.32038C6.47913 2.44025 6.3264 2.52189 6.16013 2.55496C5.99386 2.58803 5.82152 2.57106 5.6649 2.50618C5.50828 2.44131 5.37441 2.33145 5.28023 2.19049C5.18604 2.04953 5.13577 1.88381 5.13577 1.71429C5.13577 1.48696 5.22608 1.26894 5.38682 1.1082C5.54757 0.94745 5.76559 0.857144 5.99291 0.857144ZM9.42149 6.85714C9.42149 6.97081 9.37633 7.07982 9.29596 7.16019C9.21559 7.24056 9.10658 7.28572 8.99291 7.28572C7.10131 7.28572 6.15631 6.33161 5.3972 5.565C5.25041 5.41661 5.11006 5.27572 4.96863 5.145L4.24916 6.79929L6.24202 8.22268C6.29753 8.26233 6.34278 8.31466 6.37399 8.37532C6.4052 8.43598 6.42149 8.50321 6.42149 8.57143V11.5714C6.42149 11.6851 6.37633 11.7941 6.29596 11.8745C6.21559 11.9548 6.10658 12 5.99291 12C5.87925 12 5.77024 11.9548 5.68987 11.8745C5.60949 11.7941 5.56434 11.6851 5.56434 11.5714V8.79214L3.89988 7.60286L2.10041 11.7423C2.06711 11.8189 2.01215 11.8841 1.94229 11.9299C1.87243 11.9757 1.79072 12 1.7072 12C1.64835 12.0001 1.59013 11.9879 1.53631 11.9641C1.43212 11.9188 1.35018 11.834 1.30849 11.7283C1.26681 11.6227 1.26878 11.5048 1.31398 11.4005L4.21113 4.73786C3.71238 4.64947 3.09041 4.80214 2.3522 5.1975C1.76345 5.52226 1.21395 5.91357 0.71452 6.36375C0.631157 6.43842 0.521891 6.47752 0.410078 6.4727C0.298266 6.46787 0.192778 6.41949 0.116164 6.33791C0.0395494 6.25633 -0.00211297 6.14801 8.25725e-05 6.03612C0.00227811 5.92422 0.0481572 5.81762 0.127913 5.73911C0.261841 5.61322 3.43274 2.67322 5.41649 4.39554C5.62166 4.57339 5.8172 4.77054 6.00577 4.96179C6.75309 5.71607 7.45863 6.42857 8.99291 6.42857C9.10658 6.42857 9.21559 6.47373 9.29596 6.5541C9.37633 6.63447 9.42149 6.74348 9.42149 6.85714Z'},
+  taxi:{w:13,h:13,vb:'0 0 13 13',d:'M12.1875 5.28125H11.6106L10.2197 2.8468C10.1487 2.72246 10.046 2.61912 9.92212 2.54725C9.79825 2.47537 9.65759 2.43751 9.51438 2.4375H8.40023L7.79086 0.917109C7.73103 0.766161 7.62715 0.636712 7.49275 0.545602C7.35835 0.454491 7.19964 0.405935 7.03727 0.40625H5.96273C5.80019 0.40573 5.64126 0.454191 5.50665 0.545315C5.37205 0.636439 5.26802 0.766 5.20812 0.917109L4.59977 2.4375H3.48562C3.34241 2.43751 3.20175 2.47537 3.07788 2.54725C2.95401 2.61912 2.85134 2.72246 2.78027 2.8468L1.38938 5.28125H0.8125C0.704756 5.28125 0.601425 5.32405 0.525238 5.40024C0.449051 5.47642 0.40625 5.57976 0.40625 5.6875C0.40625 5.79524 0.449051 5.89858 0.525238 5.97476C0.601425 6.05095 0.704756 6.09375 0.8125 6.09375H1.21875V10.1562C1.21875 10.3717 1.30435 10.5784 1.45673 10.7308C1.6091 10.8831 1.81576 10.9687 2.03125 10.9687H3.25C3.46549 10.9687 3.67215 10.8831 3.82452 10.7308C3.9769 10.5784 4.0625 10.3717 4.0625 10.1562V9.34375H8.9375V10.1562C8.9375 10.3717 9.0231 10.5784 9.17548 10.7308C9.32785 10.8831 9.53451 10.9687 9.75 10.9687H10.9688C11.1842 10.9687 11.3909 10.8831 11.5433 10.7308C11.6956 10.5784 11.7812 10.3717 11.7812 10.1562V6.09375H12.1875C12.2952 6.09375 12.3986 6.05095 12.4748 5.97476C12.5509 5.89858 12.5938 5.79524 12.5938 5.6875C12.5938 5.57976 12.5509 5.47642 12.4748 5.40024C12.3986 5.32405 12.2952 5.28125 12.1875 5.28125ZM5.96273 1.21875H7.03727L7.52477 2.4375H5.47523L5.96273 1.21875ZM3.48562 3.25H9.51438L10.6747 5.28125H2.32527L3.48562 3.25ZM3.25 10.1562H2.03125V9.34375H3.25V10.1562ZM9.75 10.1562V9.34375H10.9688V10.1562H9.75ZM10.9688 8.53125H2.03125V6.09375H10.9688V8.53125ZM2.84375 7.3125C2.84375 7.20476 2.88655 7.10142 2.96274 7.02524C3.03892 6.94905 3.14226 6.90625 3.25 6.90625H4.0625C4.17024 6.90625 4.27358 6.94905 4.34976 7.02524C4.42595 7.10142 4.46875 7.20476 4.46875 7.3125C4.46875 7.42024 4.42595 7.52357 4.34976 7.59976C4.27358 7.67595 4.17024 7.71875 4.0625 7.71875H3.25C3.14226 7.71875 3.03892 7.67595 2.96274 7.59976C2.88655 7.52357 2.84375 7.42024 2.84375 7.3125ZM8.53125 7.3125C8.53125 7.20476 8.57405 7.10142 8.65024 7.02524C8.72642 6.94905 8.82976 6.90625 8.9375 6.90625H9.75C9.85774 6.90625 9.96108 6.94905 10.0373 7.02524C10.1134 7.10142 10.1562 7.20476 10.1562 7.3125C10.1562 7.42024 10.1134 7.52357 10.0373 7.59976C9.96108 7.67595 9.85774 7.71875 9.75 7.71875H8.9375C8.82976 7.71875 8.72642 7.67595 8.65024 7.59976C8.57405 7.52357 8.53125 7.42024 8.53125 7.3125Z'},
+  train:{w:8.9375,h:11.375,vb:'0 0 8.9375 11.375',d:'M7.3125 0H1.625C1.19402 0 0.780698 0.171205 0.475951 0.475951C0.171205 0.780698 0 1.19402 0 1.625V8.125C0 8.55598 0.171205 8.9693 0.475951 9.27405C0.780698 9.57879 1.19402 9.75 1.625 9.75H2.03125L1.3 10.725C1.26799 10.7677 1.2447 10.8162 1.23146 10.8679C1.21822 10.9196 1.21529 10.9734 1.22283 11.0262C1.23038 11.079 1.24825 11.1298 1.27543 11.1757C1.30261 11.2216 1.33857 11.2617 1.38125 11.2937C1.42393 11.3258 1.4725 11.349 1.52418 11.3623C1.57586 11.3755 1.62964 11.3785 1.68245 11.3709C1.73527 11.3634 1.78608 11.3455 1.83198 11.3183C1.87789 11.2911 1.91799 11.2552 1.95 11.2125L3.04688 9.75H5.89062L6.9875 11.2125C7.05215 11.2987 7.14839 11.3557 7.25505 11.3709C7.36171 11.3862 7.47005 11.3584 7.55625 11.2937C7.64245 11.2291 7.69943 11.1329 7.71467 11.0262C7.7299 10.9195 7.70215 10.8112 7.6375 10.725L6.90625 9.75H7.3125C7.74348 9.75 8.1568 9.57879 8.46155 9.27405C8.76629 8.9693 8.9375 8.55598 8.9375 8.125V1.625C8.9375 1.19402 8.76629 0.780698 8.46155 0.475951C8.1568 0.171205 7.74348 0 7.3125 0ZM1.625 0.8125H7.3125C7.52799 0.8125 7.73465 0.898102 7.88702 1.05048C8.0394 1.20285 8.125 1.40951 8.125 1.625V4.875H0.8125V1.625C0.8125 1.40951 0.898102 1.20285 1.05048 1.05048C1.20285 0.898102 1.40951 0.8125 1.625 0.8125ZM7.3125 8.9375H1.625C1.40951 8.9375 1.20285 8.8519 1.05048 8.69952C0.898102 8.54715 0.8125 8.34049 0.8125 8.125V5.6875H8.125V8.125C8.125 8.34049 8.0394 8.54715 7.88702 8.69952C7.73465 8.8519 7.52799 8.9375 7.3125 8.9375ZM2.84375 7.51562C2.84375 7.63615 2.80801 7.75396 2.74105 7.85417C2.67409 7.95439 2.57892 8.03249 2.46757 8.07861C2.35622 8.12474 2.2337 8.1368 2.11549 8.11329C1.99728 8.08978 1.8887 8.03174 1.80348 7.94652C1.71826 7.86129 1.66022 7.75271 1.63671 7.63451C1.6132 7.5163 1.62526 7.39378 1.67139 7.28243C1.71751 7.17108 1.79561 7.07591 1.89582 7.00895C1.99604 6.94199 2.11385 6.90625 2.23438 6.90625C2.39599 6.90625 2.55099 6.97045 2.66527 7.08473C2.77955 7.19901 2.84375 7.35401 2.84375 7.51562ZM7.3125 7.51562C7.3125 7.63615 7.27676 7.75396 7.2098 7.85417C7.14284 7.95439 7.04767 8.03249 6.93632 8.07861C6.82497 8.12474 6.70245 8.1368 6.58424 8.11329C6.46603 8.08978 6.35745 8.03174 6.27223 7.94652C6.18701 7.86129 6.12897 7.75271 6.10546 7.63451C6.08195 7.5163 6.09401 7.39378 6.14014 7.28243C6.18626 7.17108 6.26436 7.07591 6.36457 7.00895C6.46479 6.94199 6.5826 6.90625 6.70312 6.90625C6.86474 6.90625 7.01974 6.97045 7.13402 7.08473C7.2483 7.19901 7.3125 7.35401 7.3125 7.51562Z'},
+  roof:{w:11,h:9,vb:'0 0 11 9',d:'M10.8848 0.640313C10.9398 0.587867 10.9773 0.521022 10.9924 0.44824C11.0076 0.375458 10.9998 0.300012 10.9701 0.231454C10.9403 0.162895 10.8899 0.104307 10.8253 0.063105C10.7606 0.0219034 10.6846 -5.82853e-05 10.6069 1.16175e-07H0.393144C0.315404 -5.82853e-05 0.239393 0.0219034 0.174735 0.063105C0.110077 0.104307 0.0596785 0.162895 0.0299203 0.231454C0.000162042 0.300012 -0.00761791 0.375458 0.00756532 0.44824C0.0227486 0.521022 0.0602123 0.587867 0.115214 0.640313L5.10717 5.40516V8.25H3.53582C3.43164 8.25 3.33172 8.28951 3.25805 8.35983C3.18438 8.43016 3.14299 8.52554 3.14299 8.625C3.14299 8.72446 3.18438 8.81984 3.25805 8.89017C3.33172 8.96049 3.43164 9 3.53582 9H7.46418C7.56836 9 7.66828 8.96049 7.74195 8.89017C7.81562 8.81984 7.85701 8.72446 7.85701 8.625C7.85701 8.52554 7.81562 8.43016 7.74195 8.35983C7.66828 8.28951 7.56836 8.25 7.46418 8.25H5.89284V5.40516L10.8848 0.640313ZM1.34135 0.75H9.65865L8.87298 1.5H2.12702L1.34135 0.75ZM5.5 4.71984L2.91269 2.25H8.08731L5.5 4.71984Z'}
 };
-const svg = n => '<svg viewBox="0 0 24 24" aria-hidden="true">'+ICON[n]+'</svg>';
+const svg = n => { const i = ICON[n]; return '<svg viewBox="'+i.vb+'" width="'+i.w+'" height="'+i.h+'" aria-hidden="true"><path d="'+i.d+'" fill="currentColor"/></svg>'; };
 
 /* Google Maps URLs API — documented, no key, and it stays current forever,
    which is exactly what an embedded rating snapshot would not. */
@@ -1000,39 +1007,27 @@ function render(){
     // the train only earns emphasis when it actually beats walking
     const li = document.createElement('li');
     li.innerHTML =
-      '<span class="rank">'+(i+1)+'</span>'+
-      '<span class="body">'+
-        // rooftop lives in the popup now: its pink was fighting the red
-        // out-of-policy badge, and policy is the more consequential signal
-        '<span class="nm">'+h.name+'</span>'+
-        '<span class="transit">'+
-          '<span class="leg">'+svg('walk')+h.walk+' min</span>'+
-          '<span class="leg">'+svg('taxi')+h.taxi+' min</span>'+
-          '<span class="leg">'+svg('train')+h.train.min+' min'+bullets(h.train.lines)+'</span>'+
+      '<span class="cd">'+
+        '<span class="cd-head">'+
+          '<span class="cd-name">'+h.name+'</span>'+
+          '<span class="cd-sub">'+
+            '<span class="cd-hood">'+h.hood+'</span>'+
+            '<span class="vibe" title="Vibe '+h.v.toFixed(1)+' out of 5 — my subjective read: '+
+              'cool '+h.vibe.cool+', architecture '+h.vibe.arch+', scene '+h.vibe.scene+'">'+
+              svg('roof')+'<span class="vnum">'+h.v.toFixed(1)+'</span></span>'+
+            reviewLink(h)+
+          '</span>'+
         '</span>'+
-        // routing detail lives in the popup; the card keeps only the times
-        '<span class="meta">'+
-          '<span>'+h.type+'</span>'+
-          (h.rooms==='7' ? '<span class="warn">only 7 left</span>' : '')+
-        '</span>'+
-        '<span class="signals">'+
-          '<span class="vibe" title="Vibe '+h.v.toFixed(1)+' out of 5 — my subjective read: '+
-            'cool '+h.vibe.cool+', architecture '+h.vibe.arch+', scene '+h.vibe.scene+'">'+
-            svg('roof')+'<span class="vnum">'+h.v.toFixed(1)+'</span></span>'+
-          reviewLink(h)+
+        '<span class="cd-legs">'+
+          '<span class="leg">'+svg('walk')+h.walk+'m</span>'+
+          '<span class="leg">'+svg('taxi')+h.taxi+'m</span>'+
+          '<span class="leg">'+svg('train')+h.train.min+'m'+bullets(h.train.lines)+'</span>'+
         '</span>'+
       '</span>'+
-      '<span class="rt">'+
-        '<span class="tot'+(h.prov?' prov':'')+(oop(h)?' oop':'')+'">'+(h.prov?'~':'')+usd(stayTotal(h))+'</span>'+
-        '<span class="ngt'+(h.prov?' prov':'')+(oop(h)?' oop':'')+'">'+(h.prov?'~':'')+usd(h.low)+'/night</span>'+
-        '<span class="mi">'+h.mi.toFixed(2)+' mi</span>'+
-        // rate provenance belongs with the figures it qualifies
-        // out of policy is the decision-relevant fact; rate origin still shows
-        // in the popup, but on the card it would only dilute the red
-        (oop(h)
-          ? '<span class="badge badge--oop">Out of policy</span>'
-          : '<span class="badge badge--'+(h.neg?'neg">Negotiated':'mkt">Market')+'</span>')+
-        (h.prov ? '<span class="badge badge--prov">Est. rate</span>' : '')+
+      '<span class="cp">'+
+        '<span class="cp-total'+(oop(h)?' oop':'')+'">'+usd(stayTotal(h))+'</span>'+
+        '<span class="cp-night'+(oop(h)?' oop':'')+'">'+usd(h.low)+'/night</span>'+
+        '<span class="cp-dist">'+h.mi.toFixed(2)+'mi</span>'+
       '</span>';
 
     li.onmouseenter = ()=>hover(h.name, false);
