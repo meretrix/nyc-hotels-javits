@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Business Travel News (BTN) NYC Hotels</title>
-<meta name="description" content="Candidate NYC hotels for BTN at the Javits Center, ranked by distance, nightly rate, and vibe — with walk, taxi and subway times.">
+<title>NYC Hotels</title>
+<meta name="description" content="Candidate NYC hotels near the Javits Center, ranked by distance, nightly rate, and vibe — with walk, taxi and subway times.">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,8 +66,10 @@
 
   --radius:0.5rem;
 }
+/* Dark applies from the OS preference unless the toggle has pinned light,
+   and from the toggle when it has pinned dark. */
 @media (prefers-color-scheme:dark){
-  :root{
+  :root:not([data-theme="light"]){
     --content-primary:var(--neutral-100);
     --content-secondary:var(--neutral-400);
     --content-tertiary:var(--neutral-500);
@@ -87,6 +89,26 @@
     --content-danger:var(--danger-400);
     --javits:var(--accent-pink-300);
   }
+}
+:root[data-theme="dark"]{
+    --content-primary:var(--neutral-100);
+    --content-secondary:var(--neutral-400);
+    --content-tertiary:var(--neutral-500);
+    --content-inverted:var(--neutral-900);
+    --content-action:var(--brand-400,192 93% 60%);
+    --surface-background:var(--neutral-1000);
+    --surface-midground:var(--neutral-900);
+    --surface-foreground:var(--neutral-800);
+    --surface-action-subtle:var(--brand-600);
+    --border-subtle:var(--neutral-800);
+    --border-medium:var(--neutral-700);
+    --border-card:var(--neutral-800);
+    --shadow-raise:0 1px 2px hsl(0 0% 0%/.5),0 1px 1px hsl(0 0% 0%/.35);
+    --marker-idle:var(--neutral-300);
+    --marker-active:var(--brand-400,192 93% 60%);
+    --content-warning:var(--warning-400);
+    --content-danger:var(--danger-400);
+    --javits:var(--accent-pink-300);
 }
 
 *{box-sizing:border-box}
@@ -131,6 +153,18 @@ h1{font-size:1.25rem;line-height:1.5rem;margin:0;letter-spacing:-.025em;font-wei
   cursor:pointer;font-variant-numeric:tabular-nums;
 }
 .badge--version:hover{border-color:hsl(var(--surface-action-strong))}
+
+.themetog{
+  margin-left:auto;display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;flex:none;border-radius:999px;cursor:pointer;
+  background:none;border:1px solid hsl(var(--border-subtle));
+  color:hsl(var(--content-secondary));
+  transition:color .18s ease,border-color .18s ease,background .18s ease;
+}
+.themetog:hover{color:hsl(var(--content-primary));border-color:hsl(var(--border-medium))}
+.themetog svg{width:17px;height:17px;fill:none;stroke:currentColor;
+  stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.themetog:focus-visible{outline:2px solid hsl(var(--surface-action-strong));outline-offset:2px}
 .badge--roof{
   background:hsl(var(--surface-feature-accent)/.14);
   color:hsl(var(--surface-feature-accent));
@@ -151,7 +185,8 @@ h1{font-size:1.25rem;line-height:1.5rem;margin:0;letter-spacing:-.025em;font-wei
   background:hsl(var(--content-secondary)/.12);
   color:hsl(var(--content-secondary));
 }
-@media (prefers-color-scheme:dark){.badge--roof{color:hsl(var(--accent-pink-300))}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .badge--roof{color:hsl(var(--accent-pink-300))}}
+:root[data-theme="dark"] .badge--roof{color:hsl(var(--accent-pink-300))}
 
 /* Floating view switch — names the view you're going TO, not the one you're in */
 .viewfab{
@@ -210,7 +245,15 @@ aside{background:hsl(var(--surface-background));border-left:1px solid hsl(var(--
   background:hsl(var(--surface-background));
   border-bottom:1px solid hsl(var(--border-subtle));
   padding:14px 18px;display:flex;flex-direction:column;gap:10px;align-items:stretch;
+  /* collapses out of the way as you scroll the list; see data-chrome below */
+  overflow:hidden;max-height:220px;
+  transition:max-height .26s ease, padding .26s ease, opacity .18s ease,
+             border-bottom-width .26s ease;
 }
+.wrap[data-chrome="off"] .ctl{
+  max-height:0;padding-top:0;padding-bottom:0;opacity:0;border-bottom-width:0;
+}
+@media (prefers-reduced-motion:reduce){.ctl{transition:none}}
 .ctl-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .nights{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
 .nights-label{
@@ -381,7 +424,8 @@ li:hover::after,li.on::after{opacity:1;right:11px}
   width:13px;height:13px;flex:none;fill:none;stroke:hsl(var(--surface-feature-accent));
   stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;
 }
-@media (prefers-color-scheme:dark){.vibe svg{stroke:hsl(var(--accent-pink-300))}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vibe svg{stroke:hsl(var(--accent-pink-300))}}
+:root[data-theme="dark"] .vibe svg{stroke:hsl(var(--accent-pink-300))}
 /* Matches .leg / .meta — the only figure on the card that was falling
    through to Jakarta, whose numerals read as a display face beside Inter. */
 .vnum{
@@ -451,12 +495,15 @@ li:hover::after,li.on::after{opacity:1;right:11px}
 <body>
 <div class="wrap">
   <header>
-    <h1>Business Travel News (BTN) NYC Hotels</h1>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.8</button>
+    <h1>NYC Hotels</h1>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v5.9</button>
+    <button class="themetog" id="theme" aria-label="Switch to dark mode"></button>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v5.9</dt>
+      <dd>Retitled <b>NYC Hotels</b>. Added a <b>light/dark toggle</b> at the top right — it follows your system by default and only pins a theme once you press it, and the map basemap follows with it. The <b>sort tabs and controls now collapse</b> as you scroll down the list and return as soon as you scroll back up; the header bar stays put.</dd>
       <dt>v5.8</dt>
       <dd>Dropped the sub-heading and the map legend — a grey dot for a hotel and a coloured marker for the venue need no explaining. The headline centres on a phone, leaving the header as just the title.</dd>
       <dt>v5.7</dt>
@@ -832,11 +879,7 @@ const javitsMark = L.marker([JAVITS.lat,JAVITS.lon],{icon:javitsIcon(),zIndexOff
   .addTo(map)
   .bindPopup('<b>'+JAVITS.name+'</b><br><span class="pp">429 11th Ave — the anchor point</span>');
 
-darkMq.addEventListener('change', e => {
-  tiles.setUrl(TILES[e.matches ? 'dark' : 'light']);
-  javitsMark.setIcon(javitsIcon());
-  render();   // re-reads every token colour for the legend and markers
-});
+
 
 const bullets = ls => '<span class="lines">' + ls.map(l =>
   '<span class="bullet" style="background:'+(MTA[l]||'#666')+
@@ -1025,6 +1068,50 @@ ORDER.forEach(k=>{
 window.addEventListener('hashchange',()=>setMode(fromHash(),false));
 
 /* ---------- changelog ---------- */
+/* ---------- collapse the controls while scrolling down ---------- */
+(function(){
+  const asideEl = document.querySelector('aside');
+  const wrap = document.querySelector('.wrap');
+  let last = 0;
+  // No rAF: the handler only writes one attribute, so the wrapper bought
+  // nothing and made the behaviour untestable in headless.
+  asideEl.addEventListener('scroll', ()=>{
+    const y = asideEl.scrollTop, d = y - last;
+    // hysteresis: ignore jitter, and always restore near the top
+    if (y < 48)      wrap.dataset.chrome = 'on';
+    else if (d > 8)  wrap.dataset.chrome = 'off';
+    else if (d < -8) wrap.dataset.chrome = 'on';
+    if (Math.abs(d) > 2) last = y;
+  }, {passive:true});
+  wrap.dataset.chrome = 'on';
+})();
+
+/* ---------- theme ---------- */
+const themeBtn = document.getElementById('theme');
+const SUN  = '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.4M12 19v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.6 12H5M19 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/>';
+const MOON = '<path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.6 8.6 0 1 0 10.2 10.2z"/>';
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+const isDark = () => document.documentElement.dataset.theme
+  ? document.documentElement.dataset.theme === 'dark'
+  : prefersDark.matches;
+
+function paintThemeBtn(){
+  const dark = isDark();
+  // show the destination, matching the list/map pill
+  themeBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">'+(dark ? SUN : MOON)+'</svg>';
+  themeBtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+}
+function applyTheme(t){
+  document.documentElement.dataset.theme = t;
+  paintThemeBtn();
+  tiles.setUrl(TILES[isDark() ? 'dark' : 'light']);
+  javitsMark.setIcon(javitsIcon());
+  render();
+}
+themeBtn.addEventListener('click', ()=>applyTheme(isDark() ? 'light' : 'dark'));
+prefersDark.addEventListener('change', ()=>{ if(!document.documentElement.dataset.theme) applyTheme(''); });
+paintThemeBtn();
+
 /* ---------- mobile list / map switch ---------- */
 const wrapEl = document.querySelector('.wrap');
 const fabEl  = document.getElementById('viewfab');
