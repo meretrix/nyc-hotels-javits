@@ -399,10 +399,14 @@ li.in{
 .rank{
   /* A rounded chip rather than a folded corner — the 45° cut fought the
      card's own rounding, and the number never sat comfortably on it. */
-  position:absolute;top:10px;left:10px;
-  min-width:22px;height:22px;padding:0 6px;
+  /* Flush into the corner. Inset, it overlapped the hotel name's left edge;
+     tucked to 0,0 it sits entirely inside the card's 24px padding and the
+     name stays clear. Outer corner matches the card's radius, inner corner
+     rounds away from it. */
+  position:absolute;top:0;left:0;
+  min-width:24px;height:24px;padding:0 7px;
   display:inline-flex;align-items:center;justify-content:center;
-  border-radius:7px;
+  border-radius:var(--radius) 0 8px 0;
   background:hsl(var(--content-primary)/.07);
   color:hsl(var(--content-quiet));
   font-size:10px;font-weight:700;line-height:1;
@@ -532,12 +536,14 @@ li.sel .rank{background:hsl(var(--marker-active)/.22);color:hsl(var(--content-pr
 <div class="wrap">
   <header>
     <h1>NYC Hotels</h1>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v6.9</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v7.0</button>
     <button class="themetog" id="theme" aria-label="Switch to dark mode"></button>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v7.0</dt>
+      <dd>Tucked the rank chip flush into the card’s top-left corner. Inset by 10px it was clipping the hotel name; at the corner it sits entirely within the card’s padding and the name runs clear.</dd>
       <dt>v6.9</dt>
       <dd>Rank is a small rounded chip in the corner instead of a folded triangle — the 45° cut fought the card’s own rounding and the number never sat right on it.</dd>
       <dt>v6.8</dt>
