@@ -380,7 +380,8 @@ li.sel,li.sel:hover{
 }
 .cd-sub{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .cd-hood{font-size:12px;line-height:12px;color:hsl(var(--content-quiet));white-space:nowrap}
-.cd-legs{display:flex;align-items:center;gap:24px;flex-wrap:wrap;min-height:26px}
+.cd-legs{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;min-height:26px}
+.leg,.cp-dist{align-items:flex-end}
 
 .cp{display:flex;flex-direction:column;align-items:flex-end;gap:12px;text-align:right}
 .cp-total{
@@ -436,12 +437,14 @@ li.sel,li.sel:hover{
 .glink svg{width:12px;height:12px;fill:currentColor;stroke:none;flex:none}
 
 .vibe{display:inline-flex;align-items:center;gap:6px;cursor:help}
-.vibe svg{flex:none;fill:hsl(var(--surface-feature-accent));stroke:none}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vibe svg{fill:hsl(var(--accent-pink-300))}}
-:root[data-theme="dark"] .vibe svg{fill:hsl(var(--accent-pink-300))}
+.vibe svg{flex:none;stroke:none}
+.vibe{color:hsl(var(--surface-feature-accent))}   /* path uses currentColor */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vibe{color:hsl(var(--accent-pink-300))}}
+:root[data-theme="dark"] .vibe{color:hsl(var(--accent-pink-300))}
 /* Matches .leg / .meta — the only figure on the card that was falling
    through to Jakarta, whose numerals read as a display face beside Inter. */
 .vnum{font-size:12px;line-height:12px;font-variant-numeric:tabular-nums;color:hsl(var(--content-quiet))}
+/* .vnum keeps the quiet tone; only the glyph carries the accent */
 
 .rt{text-align:right;white-space:nowrap;display:flex;flex-direction:column;gap:2px;align-items:flex-end}
 .rt .badge--prov{margin-top:5px}
@@ -505,12 +508,14 @@ li.sel,li.sel:hover{
 <div class="wrap">
   <header>
     <h1>NYC Hotels</h1>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v6.0</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v6.1</button>
     <button class="themetog" id="theme" aria-label="Switch to dark mode"></button>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v6.1</dt>
+      <dd>Reviews moved off the card into the detail panel. The commute times now sit on the same baseline as the distance — the spec called for bottom alignment and I had centred them. And the cocktail glyph is pink again; the exported path carries its own fill, which was quietly overriding the colour rule.</dd>
       <dt>v6.0</dt>
       <dd>New card, built to the Figma spec. Three lines instead of five: name and total, then <b>neighbourhood</b> with the vibe score and reviews, then the commute times with the distance. Every hotel gained a neighbourhood, derived from its own address. Icons are the exported filled glyphs from the design rather than the hand-drawn strokes. Room type, rank number and the rate-origin chip came off the card — all three still show in the detail panel.</dd>
       <dt>v5.9</dt>
@@ -1015,7 +1020,6 @@ function render(){
             '<span class="vibe" title="Vibe '+h.v.toFixed(1)+' out of 5 — my subjective read: '+
               'cool '+h.vibe.cool+', architecture '+h.vibe.arch+', scene '+h.vibe.scene+'">'+
               svg('roof')+'<span class="vnum">'+h.v.toFixed(1)+'</span></span>'+
-            reviewLink(h)+
           '</span>'+
         '</span>'+
         '<span class="cd-legs">'+
