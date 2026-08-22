@@ -372,6 +372,17 @@ li.sel,li.sel:hover{
 }
 @media (prefers-reduced-motion:reduce){li{transition:none}li:hover,li.on,li.sel{transform:none}}
 
+/* Re-entry when the list changes. Squashed and low, then springs up to
+   rest. fill-mode is deliberately NOT 'both' — a persisted transform:none
+   would outrank the hover and selected lift, which are plain declarations. */
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(10px) scaleY(.94)}
+  60% {opacity:1}
+  to  {opacity:1;transform:translateY(0) scaleY(1)}
+}
+li.in{animation:cardIn .34s cubic-bezier(.32,.72,0,1);transform-origin:50% 100%}
+@media (prefers-reduced-motion:reduce){li.in{animation:none}}
+
 .cd{display:flex;flex-direction:column;gap:16px;min-width:0}
 .cd-head{display:flex;flex-direction:column;gap:12px;min-width:0}
 .cd-name{
@@ -520,12 +531,14 @@ li.sel,li.sel:hover{
 <div class="wrap">
   <header>
     <h1>NYC Hotels</h1>
-    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v6.2</button>
+    <button class="badge badge--version" id="ver" aria-expanded="false" aria-controls="changelog">v6.3</button>
     <button class="themetog" id="theme" aria-label="Switch to dark mode"></button>
   </header>
 
   <section class="changelog" id="changelog" data-open="false">
     <dl>
+      <dt>v6.3</dt>
+      <dd>Changing the sort, the nights or the policy filter now plays the list back in — each card rises from slightly low and squashed, staggered by 22ms and capped at ten so the tail never drags. Switching theme deliberately does not replay it, since nothing about the content changed.</dd>
       <dt>v6.2</dt>
       <dd>The theme control now reads <b>Light ☀</b> or <b>Dark ☾</b> — a label beside an icon of the mode you are in, rather than a bare glyph of the one you would get. On phones the sort tabs, nights and policy rows gained height so every control clears a 44px touch target.</dd>
       <dt>v6.1</dt>
@@ -1015,7 +1028,7 @@ ROSTER.forEach(h=>{
 const listEl   = document.getElementById('list');
 const indEl    = document.getElementById('ind');
 
-function render(){
+function render(animate = true){
   const M = MODES[mode];
   const ordered = M.list().filter(h => showOOP || !oop(h));
   visible = new Set(ordered.map(h=>h.name));
@@ -1058,6 +1071,22 @@ function render(){
     rows[h.name] = li;
     listEl.appendChild(li);
   });
+
+  if (animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    // capped stagger — beyond ~10 cards the tail would just feel slow
+    const STEP = 22, CAP = 10;
+    ordered.forEach((h,i)=>{
+      const li = rows[h.name]; if (!li) return;
+      li.style.animationDelay = (Math.min(i, CAP) * STEP) + 'ms';
+      li.classList.add('in');
+    });
+    clearTimeout(render._t);
+    render._t = setTimeout(()=>{
+      listEl.querySelectorAll('.in').forEach(el=>{
+        el.classList.remove('in'); el.style.animationDelay = '';
+      });
+    }, CAP*STEP + 420);
+  }
 
   paint();
   syncList(false);   // a selection survives re-sorting
@@ -1122,7 +1151,7 @@ function applyTheme(t){
   paintThemeBtn();
   tiles.setUrl(TILES[isDark() ? 'dark' : 'light']);
   javitsMark.setIcon(javitsIcon());
-  render();
+  render(false);   // recolouring isn't a content change
 }
 themeBtn.addEventListener('click', ()=>applyTheme(isDark() ? 'light' : 'dark'));
 prefersDark.addEventListener('change', ()=>{ if(!document.documentElement.dataset.theme) applyTheme(''); });
